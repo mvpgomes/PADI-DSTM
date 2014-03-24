@@ -6,6 +6,20 @@ using System.Threading.Tasks;
 
 namespace PadiDstmLibrary
 {
+    /**
+     * This interface is implemented by the DataServer and its used by the client to create 
+     * and access a PadInt object.
+     **/
+    public interface IDataServer
+    {
+        PadInt createPadInt(int uid);
+        PadInt accessPadInt(int uid);
+    }
+
+
+    /**
+     * TODO : Verficar como funciona a biblioteca.
+     **/ 
     public interface PadiDstmLibrary
     {
         bool Init();
@@ -27,35 +41,21 @@ namespace PadiDstmLibrary
         private int padIntValue;
 
         /**
-         * Declare a ID property of type integer : 
+         *  Method that reads the object PadInt, and return the value of the object.
+         *  @throws TxException
          **/
-        public int ID
+        public int Read()
         {
-            get
-            {
-                return uid;
-            }
-
-            set
-            {
-                uid = value;
-            }
+            return this.padIntValue;
         }
 
         /**
-         * Declare a Value property of type integer : 
+         * Method that writes a value in a PadInt object.
+         * @throws TxException
          **/
-        public int Value
+        public void Write(int value)
         {
-            get
-            {
-                return padIntValue;
-            }
-
-            set
-            {
-                padIntValue = value;
-            }
+            this.padIntValue = value;
         }
     }
 }
