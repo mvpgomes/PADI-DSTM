@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterServer", "MasterServer\MasterServer.csproj", "{23D47FAA-236A-4EE7-95BA-811385957F73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{0F0A815C-E24C-40F8-8603-FEB726A25711}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServer", "Server\DataServer.csproj", "{0F0A815C-E24C-40F8-8603-FEB726A25711}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PadiDstmLibrary", "PadiDstmLibrary\PadiDstmLibrary.csproj", "{7AA967D5-3754-4FC0-B7D9-B2183DE27936}"
 EndProject
