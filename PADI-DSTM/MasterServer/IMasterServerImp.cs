@@ -23,6 +23,18 @@ namespace MasterServer
                 return instance;
             }
         }
+
+        public bool Init()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Status()
+        {
+            throw new NotImplementedException();
+        }
+
+
         public string RegDataServer(string url)
         {
             throw new NotImplementedException();
