@@ -50,6 +50,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommonTypes\CommonTypes.csproj">
+      <Project>{2d67d43c-ba48-4466-85e6-6cc040939a45}</Project>
+      <Name>CommonTypes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PadiDstmLibrary\PadiDstmLibrary.csproj">
       <Project>{7aa967d5-3754-4fc0-b7d9-b2183de27936}</Project>
       <Name>PadiDstmLibrary</Name>
