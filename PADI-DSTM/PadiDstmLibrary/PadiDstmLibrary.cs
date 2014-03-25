@@ -16,7 +16,14 @@ namespace PadiDstmLibrary
         PadInt accessPadInt(int uid);
     }
 
-
+    public interface IMasterServer
+    {
+        string RegDataServer(string url);
+        string GetServerAddr();
+        bool ExistObject(int uid);
+        void ObjCreatedSuccess(string url, int uid);
+    }
+    
     /**
      * TODO : Verficar como funciona a biblioteca.
      **/ 
