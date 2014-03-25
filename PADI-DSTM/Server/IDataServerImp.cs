@@ -23,5 +23,35 @@ namespace DataServer
         {
             throw new NotImplementedException();
         }
+
+        public bool TxBegin()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TxCommit()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TxAbort()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Fail(string URL)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Freeze(string URL)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Recover(string URL)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
