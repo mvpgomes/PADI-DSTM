@@ -14,6 +14,11 @@ namespace CommonTypes
         private int uid;
         private int padIntValue;
 
+        public PadInt(int uid)
+        {
+            this.uid = uid;
+        }
+        
         /**
          *  Method that reads the object PadInt, and return the value of the object.
          *  @throws TxException

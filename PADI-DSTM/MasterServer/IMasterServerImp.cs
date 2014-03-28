@@ -11,6 +11,7 @@ namespace MasterServer
     {
         private int dataServerId;
         private static IMasterServerImp instance;
+        private readonly string MASTER_ADDRESS = "tcp://localhost:8080/MasterServer";
         
         private Dictionary<int, string> serverAddress;
         private Dictionary<int, string> objectLocation;
