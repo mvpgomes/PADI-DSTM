@@ -35,9 +35,9 @@
             this.accessBut = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.createBut = new System.Windows.Forms.Button();
-            this.logText = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.textLog = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // NickBox
@@ -101,17 +101,6 @@
             this.createBut.Text = "Create";
             this.createBut.UseVisualStyleBackColor = true;
             // 
-            // logText
-            // 
-            this.logText.AllowDrop = true;
-            this.logText.Location = new System.Drawing.Point(15, 91);
-            this.logText.Multiline = true;
-            this.logText.Name = "logText";
-            this.logText.ReadOnly = true;
-            this.logText.Size = new System.Drawing.Size(250, 158);
-            this.logText.TabIndex = 7;
-            this.logText.TextChanged += new System.EventHandler(this.logText_TextChanged);
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -130,14 +119,23 @@
             this.label3.TabIndex = 9;
             this.label3.Text = "port:";
             // 
+            // textLog
+            // 
+            this.textLog.Location = new System.Drawing.Point(15, 104);
+            this.textLog.Multiline = true;
+            this.textLog.Name = "textLog";
+            this.textLog.ReadOnly = true;
+            this.textLog.Size = new System.Drawing.Size(220, 145);
+            this.textLog.TabIndex = 10;
+            // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Controls.Add(this.textLog);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.logText);
             this.Controls.Add(this.createBut);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.accessBut);
@@ -166,9 +164,9 @@
         private System.Windows.Forms.Button accessBut;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button createBut;
-        private System.Windows.Forms.TextBox logText;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textLog;
     }
 }
 

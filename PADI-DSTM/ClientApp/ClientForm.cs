@@ -20,8 +20,8 @@ namespace ClientApp
         private void connectBut_Click(object sender, EventArgs e)
         {
             //just for test
-            logText.Text += "tcp://localhost:" + portNumb.Text + "/" + NickBox.Text;
-            logText.Text += "\r\n";
+            textLog.Text += "tcp://localhost:" + portNumb.Text + "/" + NickBox.Text;
+            textLog.Text += "\r\n";
         }
 
     }
