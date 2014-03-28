@@ -152,6 +152,11 @@
 
         }
 
+        private void logText_TextChanged(object sender, System.EventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
 
         private System.Windows.Forms.TextBox NickBox;
