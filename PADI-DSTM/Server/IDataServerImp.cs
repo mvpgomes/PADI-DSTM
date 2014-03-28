@@ -10,12 +10,14 @@ namespace DataServer
 {
     class IDataServerImp : MarshalByRefObject, IDataServer
     {
-        private readonly string MASTER_ADDRESS = "tcp://localhost:8080/MasterServer";
+        private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8080/MasterServer";
 
+        private string DATA_SERVER_ADDRESS;
         private Dictionary<int, PadInt> padIntDB;
 
         public IDataServerImp()
         {
+            this.DATA_SERVER_ADDRESS = System.Environment.MachineName;
             this.padIntDB = new Dictionary<int, PadInt>();
         }
 
@@ -29,6 +31,7 @@ namespace DataServer
             if(!PermissionToCreate(uid)){
                padIntObject = new PadInt(uid);
                this.padIntDB.Add(uid, padIntObject);
+               NotifyMasterServer(DATA_SERVER_ADDRESS, uid);
             }
             return padIntObject;
         }
@@ -78,7 +81,7 @@ namespace DataServer
             IMasterServer remoteObject;
             remoteObject = (IMasterServer)Activator.GetObject(
                 typeof(IMasterServer),
-                MASTER_ADDRESS);
+                MASTER_SERVER_ADDRESS);
             try
             {
                 answerRequest = remoteObject.ObjectExists(uid);
@@ -88,6 +91,26 @@ namespace DataServer
                 Console.WriteLine("The remote call throw the exception : " + e);
             }
             return answerRequest;
+        }
+
+        /**
+         * Method that notify the MasterServer when a PadInt object is created
+         * sucessfully.
+         **/
+        public void NotifyMasterServer(string url, int uid)
+        {
+            IMasterServer remoteObject;
+            remoteObject = (IMasterServer)Activator.GetObject(
+                typeof(IMasterServer),
+                MASTER_SERVER_ADDRESS);
+            try
+            {
+                remoteObject.ObjCreatedSuccess(url, uid);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The remote call throw the exception : " + e);
+            }
         }
     }
 }
