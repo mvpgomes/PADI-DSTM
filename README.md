@@ -1,10 +1,9 @@
 PADI-DSTM
 =========
 
-
-<br>
 Repository for the 2013/2014 PADI-DSTM project.
 <br>
+
 In the way to perform the work more easily is advisible create
 a local branch of work. To do that execute the following commands:
 <br>
