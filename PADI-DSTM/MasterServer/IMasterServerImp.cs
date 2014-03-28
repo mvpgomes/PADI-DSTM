@@ -9,9 +9,20 @@ namespace MasterServer
 {
     class IMasterServerImp : MarshalByRefObject, IMasterServer
     {
+        private int dataServerId;
         private static IMasterServerImp instance;
+        
+        private Dictionary<int, string> serverAddress;
+        private Dictionary<int, string> objectLocation;
+        private Dictionary<int, int> versionVector;
 
-        private IMasterServerImp() {}
+        private IMasterServerImp() {
+            this.serverAddress = new Dictionary<int, string>();
+            this.objectLocation = new Dictionary<int,string>();
+            this.versionVector = new Dictionary<int, int>();
+            this.dataServerId = 0;
+        }
+
         public static IMasterServerImp Instance
         {
             get
