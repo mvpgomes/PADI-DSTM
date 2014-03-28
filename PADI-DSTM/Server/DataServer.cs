@@ -13,14 +13,12 @@ namespace DataServer
     {
         static void Main(string[] args)
         {
-            IDataServerImp myDataServ = new IDataServerImp();
-
             //registering server at port 8081
             TcpChannel channel = new TcpChannel(8081);
-            ChannelServices.RegisterChannel(channel, true);
+            ChannelServices.RegisterChannel(channel, false);
 
-            RemotingServices.Marshal(myDataServ, "DataServer",
-                typeof(IDataServerImp));
+            RemotingConfiguration.RegisterWellKnownServiceType(typeof(IDataServerImp),
+                "DataServer", WellKnownObjectMode.Singleton);
 
             System.Console.WriteLine("<enter> DataServer is running...");
             System.Console.ReadLine();

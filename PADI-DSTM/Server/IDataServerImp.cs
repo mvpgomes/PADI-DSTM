@@ -10,14 +10,14 @@ namespace DataServer
 {
     class IDataServerImp : MarshalByRefObject, IDataServer
     {
-        private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8080/MasterServer";
+        private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
 
         private string DATA_SERVER_ADDRESS;
         private Dictionary<int, PadInt> padIntDB;
 
         public IDataServerImp()
         {
-            this.DATA_SERVER_ADDRESS = System.Environment.MachineName;
+            this.DATA_SERVER_ADDRESS = "tcp://localhost:8081/DataServer";
             this.padIntDB = new Dictionary<int, PadInt>();
         }
 
@@ -27,13 +27,19 @@ namespace DataServer
          **/
         public PadInt createPadInt(int uid)
         {
-            PadInt padIntObject = null;
-            if(!PermissionToCreate(uid)){
-               padIntObject = new PadInt(uid);
-               this.padIntDB.Add(uid, padIntObject);
-               NotifyMasterServer(DATA_SERVER_ADDRESS, uid);
+            if (!PermissionToCreate(uid))
+            {
+                PadInt padIntObject = new PadInt(uid);
+                this.padIntDB.Add(uid, padIntObject);
+                NotifyMasterServer(DATA_SERVER_ADDRESS, uid);
+                Console.WriteLine("Object with id " + uid + " created with sucess\r\n"); ;
+                return padIntObject;
             }
-            return padIntObject;
+            else
+            {
+                Console.WriteLine("ERROR: The object with id " + uid + " already exists.");
+                return null;
+            }
         }
 
         public PadInt accessPadInt(int uid)

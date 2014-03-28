@@ -14,14 +14,13 @@ namespace MasterServer
     {
         static void Main(string[] args)
         {
-            IMasterServerImp myMS = IMasterServerImp.Instance;
-
-            //registering server at port 8086
+           
+             //registering server at port 8086
             TcpChannel channel = new TcpChannel(8086);
-            ChannelServices.RegisterChannel(channel, true);
+            ChannelServices.RegisterChannel(channel, false);
 
-            RemotingServices.Marshal(myMS, "MasterServer",
-                typeof(IMasterServerImp));
+            RemotingConfiguration.RegisterWellKnownServiceType(typeof(IMasterServerImp),
+               "MasterServer", WellKnownObjectMode.Singleton);
 
             System.Console.WriteLine("<enter> MasterServer is running...");
             System.Console.ReadLine();
