@@ -51,19 +51,33 @@ namespace MasterServer
             throw new NotImplementedException();
         }
 
-        public string GetServerAddr()
+
+        /**
+         * Method that receives the id from a DataServer and 
+         * returns its respective URL.
+         **/
+        public string GetServerAddr(int serverID)
         {
-            throw new NotImplementedException();
+            return this.serverAddress[serverID];
         }
 
-        public bool ExistObject(int uid)
+        /**
+         * Method that receives the uid from a PadInt and returns 
+         * true if the object PadInt with identifier uid exists,
+         * otherwise returns false.
+         **/ 
+        public bool ObjectExists(int uid)
         {
-            throw new NotImplementedException();
+            return this.objectLocation.ContainsKey(uid);    
         }
 
+        /**
+         * Method that updates the information at the MasterServer
+         * when a PadInt object is created in a server.
+         **/ 
         public void ObjCreatedSuccess(string url, int uid)
         {
-            throw new NotImplementedException();
+            this.objectLocation.Add(uid, url);
         }
     }
 }

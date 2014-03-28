@@ -32,8 +32,8 @@ namespace PadiDstmLibrary
         bool Init();
         bool Status();
         string RegDataServer(string url);
-        string GetServerAddr();
-        bool ExistObject(int uid);
+        string GetServerAddr(int serverID);
+        bool ObjectExists(int uid);
         void ObjCreatedSuccess(string url, int uid);
      }
 }
