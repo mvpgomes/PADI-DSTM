@@ -9,6 +9,7 @@ namespace MasterServer
 {
     class IMasterServerImp : MarshalByRefObject, IMasterServer
     {
+        private int globalUID;
         private int dataServerId;
         private static IMasterServerImp instance;
        

@@ -11,10 +11,16 @@ namespace DataServer
 {
     class DataServer
     {
+
+        private static string port;
+        private static string DATA_SEVER_ADDRESS;
+
         static void Main(string[] args)
         {
-            //registering server at port 8081
-            TcpChannel channel = new TcpChannel(8081);
+            port = args[0];
+            DATA_SEVER_ADDRESS = "tcp://" + System.Environment.MachineName + ":" + port + "/DataServer";
+
+            TcpChannel channel = new TcpChannel(Convert.ToInt32(port));
             ChannelServices.RegisterChannel(channel, false);
 
             RemotingConfiguration.RegisterWellKnownServiceType(typeof(IDataServerImp),

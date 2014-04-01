@@ -23,6 +23,7 @@ namespace MasterServer
                "MasterServer", WellKnownObjectMode.Singleton);
 
             System.Console.WriteLine("<enter> MasterServer is running...");
+            System.Console.WriteLine("The machine name is : " + System.Environment.MachineName);
             System.Console.ReadLine();
         }
     }

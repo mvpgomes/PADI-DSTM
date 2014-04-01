@@ -15,9 +15,9 @@ namespace DataServer
         private string DATA_SERVER_ADDRESS;
         private Dictionary<int, PadInt> padIntDB;
 
-        public IDataServerImp()
+        public IDataServerImp(int port)
         {
-            this.DATA_SERVER_ADDRESS = "tcp://localhost:8081/DataServer";
+            this.DATA_SERVER_ADDRESS = "tcp://" + System.Environment.MachineName + port + "/DataServer";
             this.padIntDB = new Dictionary<int, PadInt>();
         }
 
