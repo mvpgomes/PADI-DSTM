@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PadiDstmLibrary;
 using CommonTypes;
 
 namespace DataServer
@@ -25,7 +24,7 @@ namespace DataServer
          * Method that allows a user to create a new PadInt
          * object in the DataServer;
          **/
-        public PadInt createPadInt(int uid)
+        public PadInt createObject(int uid)
         {
             if (!PermissionToCreate(uid))
             {
@@ -42,41 +41,12 @@ namespace DataServer
             }
         }
 
-        public PadInt accessPadInt(int uid)
-        {
-            throw new NotImplementedException();
-        }
 
-        public bool TxBegin()
+        public PadInt accessObject(int uid)
         {
-            throw new NotImplementedException();
+            return this.padIntDB[uid];
         }
-
-        public bool TxCommit()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TxAbort()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Fail(string URL)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Freeze(string URL)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Recover(string URL)
-        {
-            throw new NotImplementedException();
-        }
-
+    
         /**
          * Method that verifies if the a PadInt object with identifier 
          * uid can be created at the DataServer.

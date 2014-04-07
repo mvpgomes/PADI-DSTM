@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PadiDstmLibrary")]
+[assembly: AssemblyTitle("PADI-DSTM")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PadiDstmLibrary")]
+[assembly: AssemblyProduct("PADI-DSTM")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("949705d2-b50f-4f4a-b9f6-653c9e2c8e2c")]
+[assembly: Guid("88ba7005-bfbe-42be-935c-1407c053e77b")]
 
 // Version information for an assembly consists of the following four values:
 //

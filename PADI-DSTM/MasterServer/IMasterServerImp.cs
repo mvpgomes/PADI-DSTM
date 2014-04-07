@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PadiDstmLibrary;
+using CommonTypes;
 
 namespace MasterServer
 {
     class IMasterServerImp : MarshalByRefObject, IMasterServer
     {
-        private int globalUID;
         private int dataServerId;
         private static IMasterServerImp instance;
        
@@ -36,22 +35,27 @@ namespace MasterServer
             }
         }
 
-        public bool Init()
+        public int RegisterDataServer(string url)
         {
-            throw new NotImplementedException();
+            int serverId = this.dataServerId;
+            this.serverAddress.Add(this.dataServerId, url);
+            this.dataServerId++;
+            return serverId;
         }
 
-        public bool Status()
+
+        public string getDataServerAddress()
         {
-            throw new NotImplementedException();
+            int minValue = 2048;
+            int serverID = 0;
+            foreach (KeyValuePair<int, int> entry in versionVector)
+            {
+                if (entry.Value <= minValue)
+                    minValue = entry.Value;
+                    serverID = entry.Key;
+            }
+            return this.serverAddress[serverID];
         }
-
-
-        public string RegDataServer(string url)
-        {
-            throw new NotImplementedException();
-        }
-
 
         /**
          * Method that receives the id from a DataServer and 
@@ -79,6 +83,15 @@ namespace MasterServer
         public void ObjCreatedSuccess(string url, int uid)
         {
             this.objectLocation.Add(uid, url);
+        }
+
+        /**
+         * Method that returns the DataServer address where the PadInt
+         * with id UID is stored.
+         **/
+        public string getPadIntLocation(int uid)
+        {
+            return this.objectLocation[uid];
         }
     }
 }

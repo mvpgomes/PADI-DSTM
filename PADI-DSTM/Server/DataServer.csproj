@@ -54,10 +54,6 @@
       <Project>{2d67d43c-ba48-4466-85e6-6cc040939a45}</Project>
       <Name>CommonTypes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PadiDstmLibrary\PadiDstmLibrary.csproj">
-      <Project>{7aa967d5-3754-4fc0-b7d9-b2183de27936}</Project>
-      <Name>PadiDstmLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

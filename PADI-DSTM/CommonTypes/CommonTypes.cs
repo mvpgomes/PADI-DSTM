@@ -37,4 +37,25 @@ namespace CommonTypes
             this.padIntValue = value;
         }
     }
+
+    /**
+     * Commom Interfaces used by the data servers.
+     **/
+    public interface IDataServer
+    {
+        PadInt createObject(int uid);
+        PadInt accessObject(int uid);
+    }
+
+    /**
+     * Common Interfaces used by the master server
+     **/
+    public interface IMasterServer
+    {
+        public bool ObjectExists(int uid);
+        public bool ObjCreatedSuccess(string url, int uid);
+        public string getDataServerAddress();
+        public string getPadIntLocation(int uid);
+        public int RegisterDataServer(string url);
+    }
 }
