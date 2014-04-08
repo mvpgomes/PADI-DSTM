@@ -80,8 +80,7 @@ namespace MasterServer
          * Method that updates the information at the MasterServer
          * when a PadInt object is created in a server.
          **/ 
-        public bool ObjCreatedSuccess(string url, int uid)
-        {
+        public bool ObjCreatedSuccess(string url, int uid){
             this.objectLocation.Add(uid, url);
             //TODO We need to change this!!!
             return true;
@@ -91,8 +90,7 @@ namespace MasterServer
          * Method that returns the DataServer address where the PadInt
          * with id UID is stored.
          **/
-        public string getPadIntLocation(int uid)
-        {
+        public string getPadIntLocation(int uid){
             return this.objectLocation[uid];
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CommonTypes;
+using PADI_DSTM;
 
 namespace DataServer
 {
@@ -14,24 +15,33 @@ namespace DataServer
         private string DATA_SERVER_ADDRESS;
         private Dictionary<int, PadInt> padIntDB;
 
-        public IDataServerImp(int port)
-        {
+        public IDataServerImp(int port){
             this.DATA_SERVER_ADDRESS = "tcp://" + System.Environment.MachineName + port + "/DataServer";
             this.padIntDB = new Dictionary<int, PadInt>();
+        }
+
+        /**
+         */
+        public Dictionary<int, PadInt> returnPadIntDB() {
+            return this.padIntDB;
         }
 
         /**
          * Method that allows a user to create a new PadInt
          * object in the DataServer;
          **/
-        public PadInt createObject(int uid)
-        {
+        public PadInt createObject(int uid){
+
+
             if (!PermissionToCreate(uid))
             {
                 PadInt padIntObject = new PadInt(uid);
                 this.padIntDB.Add(uid, padIntObject);
                 NotifyMasterServer(DATA_SERVER_ADDRESS, uid);
-                Console.WriteLine("Object with id " + uid + " created with sucess\r\n"); ;
+                Console.WriteLine("Object with id " + uid + " created with sucess\r\n");
+                //THIS IS JUST FOR DEBUG ->
+                serializeMyObjects();
+
                 return padIntObject;
             }
             else
@@ -42,8 +52,7 @@ namespace DataServer
         }
 
 
-        public PadInt accessObject(int uid)
-        {
+        public PadInt accessObject(int uid){
             return this.padIntDB[uid];
         }
     
@@ -51,8 +60,7 @@ namespace DataServer
          * Method that verifies if the a PadInt object with identifier 
          * uid can be created at the DataServer.
          **/
-        public bool PermissionToCreate(int uid)
-        {
+        public bool PermissionToCreate(int uid){
             bool answerRequest = false;
             IMasterServer remoteObject;
             remoteObject = (IMasterServer)Activator.GetObject(
@@ -73,8 +81,7 @@ namespace DataServer
          * Method that notify the MasterServer when a PadInt object is created
          * sucessfully.
          **/
-        public void NotifyMasterServer(string url, int uid)
-        {
+        public void NotifyMasterServer(string url, int uid){
             IMasterServer remoteObject;
             remoteObject = (IMasterServer)Activator.GetObject(
                 typeof(IMasterServer),
@@ -87,6 +94,17 @@ namespace DataServer
             {
                 Console.WriteLine("The remote call throw the exception : " + e);
             }
+        }
+
+        //Method to perform Serializable function
+        public void serializeMyObjects() { 
+            bool result = PadiDstm.serializeObjects(this.DATA_SERVER_ADDRESS, this.padIntDB);
+            //TODO do something with the bool value
+        }
+
+        //Get Data Server saved objects
+        public void getSavedObjects() { 
+        
         }
     }
 }

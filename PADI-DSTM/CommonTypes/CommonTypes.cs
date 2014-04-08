@@ -45,6 +45,12 @@ namespace CommonTypes
     {
         PadInt createObject(int uid);
         PadInt accessObject(int uid);
+        //Method to perform Serializable function
+        void serializeMyObjects();
+        //Get Data Server saved objects
+        void getSavedObjects();
+        //
+        Dictionary<int, PadInt> returnPadIntDB();
     }
 
     /**
