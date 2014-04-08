@@ -5,22 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using CommonTypes;
 using System.Runtime.Remoting;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Tcp;
 
 namespace PADI_DSTM
 {
     public class PadiDstm
     {
-        private static IDataServer remoteServer;
-        private static IMasterServer remoteMaster;
-
+        private static TcpChannel channel;
+        private static int CurrentTxID;
         private static Dictionary<int, PadInt> cachedObjects;
 
         public static readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
+        private static string DATA_SERVER_RECOVERY_ADDRESS;
+
+        static PadiDstm() { }
 
         public static bool Init()
         {
-            cachedObjects = cachedObjects = new Dictionary<int, PadInt>();
-            remoteMaster = getMasterInstance();
+            channel = new TcpChannel();
+            ChannelServices.RegisterChannel(channel, false);
+            cachedObjects = new Dictionary<int, PadInt>();
             return true;
         }
 
@@ -36,11 +41,15 @@ namespace PADI_DSTM
 
         public static bool Status()
         {
-            return true;
+            IMasterServer remoteMaster = getMasterInstance();
+            bool answer = remoteMaster.ShowDataServersState();
+            return answer;
         }
 
         public static bool Fail(string URL)
         {
+            IDataServer remoteServer = getDataServerInstance(URL);
+            DATA_SERVER_RECOVERY_ADDRESS = remoteServer.Disconnect();
             return true;
         }
 
@@ -70,15 +79,13 @@ namespace PADI_DSTM
 
             try
             {
-               string dataServerAddress = remoteMaster.getDataServerAddress();
-                remoteServer = (IDataServer)Activator.GetObject(
-                    typeof(IDataServer),
-                    dataServerAddress);
-
-                reference = remoteServer.createObject(uid);
-                cachedObjects.Add(uid, reference);
+               IMasterServer remoteMaster = getMasterInstance();
+               string dataServerAddress = remoteMaster.GetDataServerAddress();
+               IDataServer remoteServer = getDataServerInstance(dataServerAddress); 
+               reference = remoteServer.CreateObject(uid);
+               cachedObjects.Add(uid, reference);
             }
-            catch (Exception) { return null; }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
 
             return reference;
         }
@@ -100,29 +107,40 @@ namespace PADI_DSTM
             {
                 try
                 {
-                    string dataServerAddress = remoteMaster.getPadIntLocation(uid);
-                    remoteServer = (IDataServer)Activator.GetObject(
-                         typeof(IDataServer),
-                         dataServerAddress);
+                    IMasterServer remoteMaster = getMasterInstance();
+                    string dataServerAddress = remoteMaster.GetPadIntLocation(uid);
 
-                    reference = remoteServer.accessObject(uid);
+                    IDataServer remoteServer = getDataServerInstance(dataServerAddress);
+                    reference = remoteServer.AccessObject(uid);
                 }
                 catch (Exception) { return null; }
             }
             return reference;
         }
 
+        /**
+         * Method that returns an remote object instance from the Master Server. 
+         **/ 
         private static IMasterServer getMasterInstance()
         {
-            if (remoteMaster == null)
-            {
-                remoteMaster = (IMasterServer)Activator.GetObject(
+           IMasterServer remoteMaster = (IMasterServer)Activator.GetObject(
                     typeof(IMasterServer),
                     MASTER_SERVER_ADDRESS);
-            }
+            
             return remoteMaster;
         }
 
+        /**
+         * Method that returns an remote object instance from the Data Server registered at the
+         * url DATA_SERVER_ADDRESS. 
+         **/ 
+        private static IDataServer getDataServerInstance(string DATA_SERVER_ADDRESS)
+        {
+            IDataServer remoteServer = (IDataServer)Activator.GetObject(
+                     typeof(IDataServer),
+                     DATA_SERVER_ADDRESS);
 
+            return remoteServer;
+        }
     }
 }

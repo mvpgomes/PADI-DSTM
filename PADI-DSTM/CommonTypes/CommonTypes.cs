@@ -9,6 +9,7 @@ namespace CommonTypes
     /**
     * Class that represents a PadInt object that is shared between the distributed system.
     **/
+    [Serializable]
     public class PadInt
     {
         private int uid;
@@ -43,8 +44,10 @@ namespace CommonTypes
      **/
     public interface IDataServer
     {
-        PadInt createObject(int uid);
-        PadInt accessObject(int uid);
+        PadInt CreateObject(int uid);
+        PadInt AccessObject(int uid);
+        string Disconnect();
+        bool DumpState();
     }
 
     /**
@@ -54,8 +57,9 @@ namespace CommonTypes
     {
         bool ObjectExists(int uid);
         bool ObjCreatedSuccess(string url, int uid);
-        string getDataServerAddress();
-        string getPadIntLocation(int uid);
+        string GetDataServerAddress();
+        string GetPadIntLocation(int uid);
         int RegisterDataServer(string url);
+        bool ShowDataServersState();
     }
 }

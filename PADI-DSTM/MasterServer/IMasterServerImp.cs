@@ -40,6 +40,7 @@ namespace MasterServer
             int serverId = this.dataServerId;
             this.serverAddress.Add(this.dataServerId, url);
             this.dataServerId++;
+            Console.WriteLine("The server hosted at " + url + " was registred with sucess !");
             return serverId;
         }
 
@@ -73,7 +74,7 @@ namespace MasterServer
          **/ 
         public bool ObjectExists(int uid)
         {
-            return this.objectLocation.ContainsKey(uid);    
+            return this.objectLocation.ContainsKey(uid);
         }
 
         /**
@@ -83,7 +84,6 @@ namespace MasterServer
         public bool ObjCreatedSuccess(string url, int uid)
         {
             this.objectLocation.Add(uid, url);
-            //TODO We need to change this!!!
             return true;
         }
 
@@ -94,6 +94,35 @@ namespace MasterServer
         public string getPadIntLocation(int uid)
         {
             return this.objectLocation[uid];
+        }
+
+        /**
+         * Method that queries all the registered DataServers to dump
+         * it actual state.
+         **/
+        public bool ShowDataServersState()
+        {
+            bool answer = false;
+            try
+            {
+                foreach (string url in this.serverAddress.Values)
+                {
+                    IDataServer remoteServer = getDataServerInstance(url);
+                    answer = remoteServer.DumpState();
+                }
+            }
+            catch (Exception e) { Console.WriteLine(e.StackTrace); }
+            return answer;
+        }
+
+        public IDataServer getDataServerInstance(string url)
+        {
+           
+          IDataServer remoteServer = (IDataServer)Activator.GetObject(
+                    typeof(IDataServer),
+                                   url);
+            
+            return remoteServer;
         }
     }
 }

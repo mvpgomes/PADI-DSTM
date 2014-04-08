@@ -12,19 +12,22 @@ namespace DataServer
 {
     class DataServer
     {
-
-        private static int DATA_SERVER_ID;
+        public static TcpChannel channel;
+        public static int DATA_SERVER_ID;
         private static string port;
-        private static string DATA_SEVER_ADDRESS;
+        public static string DATA_SERVER_ADDRESS;
 
         private static readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
 
+        public DataServer() { }
+
         static void Main(string[] args)
         {
-            port = args[0];
-            DATA_SEVER_ADDRESS = "tcp://" + System.Environment.MachineName + ":" + port + "/DataServer";
+            // Fix the port assignement
+            port = "8081";
+            DATA_SERVER_ADDRESS = "tcp://" + System.Environment.MachineName + ":" + port + "/DataServer";
 
-            TcpChannel channel = new TcpChannel(Convert.ToInt32(port));
+            channel = new TcpChannel(Convert.ToInt32(port));
             ChannelServices.RegisterChannel(channel, false);
 
             RemotingConfiguration.RegisterWellKnownServiceType(typeof(IDataServerImp),
@@ -39,7 +42,7 @@ namespace DataServer
 
             try
             {
-                DATA_SERVER_ID = remoteMaster.RegisterDataServer(DATA_SEVER_ADDRESS);
+                DATA_SERVER_ID = remoteMaster.RegisterDataServer(DATA_SERVER_ADDRESS);
             }
             catch (Exception e) { Console.WriteLine(e.StackTrace); }
 

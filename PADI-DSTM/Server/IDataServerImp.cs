@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Remoting;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Tcp;
 using CommonTypes;
 
 namespace DataServer
@@ -11,13 +14,11 @@ namespace DataServer
     {
         private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
 
-        private string DATA_SERVER_ADDRESS;
         private Dictionary<int, PadInt> padIntDB;
 
-        public IDataServerImp(int port)
+          public IDataServerImp()
         {
-            this.DATA_SERVER_ADDRESS = "tcp://" + System.Environment.MachineName + port + "/DataServer";
-            this.padIntDB = new Dictionary<int, PadInt>();
+           this.padIntDB = new Dictionary<int, PadInt>();
         }
 
         /**
@@ -30,8 +31,8 @@ namespace DataServer
             {
                 PadInt padIntObject = new PadInt(uid);
                 this.padIntDB.Add(uid, padIntObject);
-                NotifyMasterServer(DATA_SERVER_ADDRESS, uid);
-                Console.WriteLine("Object with id " + uid + " created with sucess\r\n"); ;
+                NotifyMasterServer(DataServer.DATA_SERVER_ADDRESS, uid);
+                Console.WriteLine("Object with id " + uid + " created with sucess"); ;
                 return padIntObject;
             }
             else
@@ -58,14 +59,7 @@ namespace DataServer
             remoteObject = (IMasterServer)Activator.GetObject(
                 typeof(IMasterServer),
                 MASTER_SERVER_ADDRESS);
-            try
-            {
-                answerRequest = remoteObject.ObjectExists(uid);
-            } 
-            catch(Exception e)
-            {
-                Console.WriteLine("The remote call throw the exception : " + e);
-            }
+            answerRequest = remoteObject.ObjectExists(uid);
             return answerRequest;
         }
 
@@ -87,6 +81,35 @@ namespace DataServer
             {
                 Console.WriteLine("The remote call throw the exception : " + e);
             }
+        }
+
+        /**
+         * Method that shows the state of the DataServer.
+         * The DataServer state is described by its id and the id's of the PadInt's that 
+         * are stored in. 
+         **/
+        public bool DumpState()
+        {
+            Console.WriteLine("Data Server ID : " + DataServer.DATA_SERVER_ID);
+            Console.WriteLine("Stored PadInt's in this Server :");  
+            foreach (int id in padIntDB.Keys)
+            {
+                Console.WriteLine("ID : " + id);
+            }
+            return true;
+        }
+
+        /**
+         * Method that makes the Data Server disconnect from the current channel and
+         * after that register itself in a secret channel to accept recover calls from
+         * the PADI-DSTM lib. This method returns the port from the secret channel.
+         **/
+        public string Disconnect()
+        {
+            TcpChannel newChannel = new TcpChannel(9000);
+            ChannelServices.UnregisterChannel(DataServer.channel);  
+            ChannelServices.RegisterChannel(newChannel, false);
+            return "tcp://" + System.Environment.MachineName + ":" + "9000" + "/DataServer"; ;
         }
     }
 }
