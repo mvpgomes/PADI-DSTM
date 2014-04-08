@@ -71,7 +71,6 @@ namespace PADI_DSTM
             try
             {
                string dataServerAddress = remoteMaster.getDataServerAddress();
-
                 remoteServer = (IDataServer)Activator.GetObject(
                     typeof(IDataServer),
                     dataServerAddress);
@@ -102,7 +101,6 @@ namespace PADI_DSTM
                 try
                 {
                     string dataServerAddress = remoteMaster.getPadIntLocation(uid);
-
                     remoteServer = (IDataServer)Activator.GetObject(
                          typeof(IDataServer),
                          dataServerAddress);
@@ -111,7 +109,6 @@ namespace PADI_DSTM
                 }
                 catch (Exception) { return null; }
             }
-
             return reference;
         }
 

@@ -5,11 +5,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterServer", "MasterServe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServer", "Server\DataServer.csproj", "{0F0A815C-E24C-40F8-8603-FEB726A25711}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientApp", "ClientApp\ClientApp.csproj", "{6AE889C4-C1A5-4FCB-B38D-146FF9E8A751}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonTypes", "CommonTypes\CommonTypes.csproj", "{2D67D43C-BA48-4466-85E6-6CC040939A45}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PADI-DSTM", "PADI-DSTM\PADI-DSTM.csproj", "{966E92BE-9872-43F0-897E-4152D7B562D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientApplication", "ClientApplication\ClientApplication.csproj", "{FA15BAE7-8DEB-415D-BDD8-80A4ED153B61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +25,6 @@ Global
 		{0F0A815C-E24C-40F8-8603-FEB726A25711}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F0A815C-E24C-40F8-8603-FEB726A25711}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F0A815C-E24C-40F8-8603-FEB726A25711}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6AE889C4-C1A5-4FCB-B38D-146FF9E8A751}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6AE889C4-C1A5-4FCB-B38D-146FF9E8A751}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6AE889C4-C1A5-4FCB-B38D-146FF9E8A751}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6AE889C4-C1A5-4FCB-B38D-146FF9E8A751}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D67D43C-BA48-4466-85E6-6CC040939A45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D67D43C-BA48-4466-85E6-6CC040939A45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D67D43C-BA48-4466-85E6-6CC040939A45}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -37,6 +33,10 @@ Global
 		{966E92BE-9872-43F0-897E-4152D7B562D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{966E92BE-9872-43F0-897E-4152D7B562D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{966E92BE-9872-43F0-897E-4152D7B562D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA15BAE7-8DEB-415D-BDD8-80A4ED153B61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA15BAE7-8DEB-415D-BDD8-80A4ED153B61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA15BAE7-8DEB-415D-BDD8-80A4ED153B61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA15BAE7-8DEB-415D-BDD8-80A4ED153B61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

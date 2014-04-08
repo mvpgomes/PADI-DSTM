@@ -52,10 +52,10 @@ namespace CommonTypes
      **/
     public interface IMasterServer
     {
-        public bool ObjectExists(int uid);
-        public bool ObjCreatedSuccess(string url, int uid);
-        public string getDataServerAddress();
-        public string getPadIntLocation(int uid);
-        public int RegisterDataServer(string url);
+        bool ObjectExists(int uid);
+        bool ObjCreatedSuccess(string url, int uid);
+        string getDataServerAddress();
+        string getPadIntLocation(int uid);
+        int RegisterDataServer(string url);
     }
 }

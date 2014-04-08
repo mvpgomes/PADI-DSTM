@@ -80,9 +80,11 @@ namespace MasterServer
          * Method that updates the information at the MasterServer
          * when a PadInt object is created in a server.
          **/ 
-        public void ObjCreatedSuccess(string url, int uid)
+        public bool ObjCreatedSuccess(string url, int uid)
         {
             this.objectLocation.Add(uid, url);
+            //TODO We need to change this!!!
+            return true;
         }
 
         /**
