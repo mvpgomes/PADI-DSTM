@@ -104,18 +104,20 @@ namespace CommonTypes
     public class TID
     {
         private int id;
+
         public TID(int id) { this.id = id; }
 
-        int GetID() { return this.id; }
+        public int GetID() { return this.id; }
     }
 
     //It is a representation of the Transaction
     //TID must be unique
     public class Transaction
     {
-        TID tid;
+        private TID tid;
+        
         public Transaction(TID tid) { this.tid = tid; }
-
-        TID GetTID() { return this.tid; }
+        
+        public TID GetTID() { return this.tid; }
     }
 }

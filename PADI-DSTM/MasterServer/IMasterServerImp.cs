@@ -7,6 +7,45 @@ using CommonTypes;
 
 namespace MasterServer
 {
+    class TransactionManager
+    {
+        private Dictionary<TID, Transaction> trans;
+
+        public TransactionManager()
+        {
+            this.trans = new Dictionary<TID, Transaction>();
+        }
+
+        void AddTransaction(Transaction trans)
+        {
+            this.trans.Add(trans.GetTID(), trans);
+        }
+
+        public Transaction GetTransaction(TID tid)
+        {
+            Transaction t = null;
+            try
+            {
+                t = this.trans[tid];
+            }
+            catch (Exception) { return null; }
+
+            return t;
+        }
+
+        public override string ToString()
+        {
+            string aux = "";
+
+            foreach (KeyValuePair<TID, Transaction> entry in this.trans)
+            {
+                aux += entry.Key.ToString() + entry.Value.ToString() + " | ";
+            }
+            return aux;
+        }
+
+    }
+
     class IMasterServerImp : MarshalByRefObject, IMasterServer
     {
         private int dataServerId;
@@ -15,11 +54,13 @@ namespace MasterServer
         private Dictionary<int, string> serverAddress;
         private Dictionary<int, string> objectLocation;
         private Dictionary<int, int> versionVector;
-
-        private IMasterServerImp() {
+     
+        private IMasterServerImp() 
+        {
             this.serverAddress = new Dictionary<int, string>();
             this.objectLocation = new Dictionary<int,string>();
             this.versionVector = new Dictionary<int, int>();
+           
             this.dataServerId = 0;
         }
 
