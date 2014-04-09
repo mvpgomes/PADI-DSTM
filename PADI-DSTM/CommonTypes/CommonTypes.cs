@@ -64,4 +64,23 @@ namespace CommonTypes
         string getPadIntLocation(int uid);
         int RegisterDataServer(string url);
     }
+
+    //This is a encapsulation of the Transaction Identifier
+    public class TID
+    {
+        private int id;
+        public TID(int id) { this.id = id; }
+
+        int getID() { return this.id; }
+    }
+
+    //It is a representation of the Transaction
+    //TID must be unique
+    public class Transaction
+    {
+        TID tid;
+        public Transaction(TID tid) { this.tid = tid; }
+
+        TID getTID() { return this.tid; }
+    }
 }
