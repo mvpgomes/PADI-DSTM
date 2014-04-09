@@ -46,8 +46,10 @@ namespace CommonTypes
     {
         PadInt CreateObject(int uid);
         PadInt AccessObject(int uid);
-        string Disconnect();
+        bool Disconnect();
         bool DumpState();
+        bool FreezeDataServer();
+        bool RecoverDataServer();
     }
 
     /**

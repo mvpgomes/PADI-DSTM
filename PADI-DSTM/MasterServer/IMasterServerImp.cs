@@ -23,6 +23,9 @@ namespace MasterServer
             this.dataServerId = 0;
         }
 
+        /**
+         * Method that returns the single instance of the Master Server.
+         **/
         public static IMasterServerImp Instance
         {
             get
@@ -35,6 +38,10 @@ namespace MasterServer
             }
         }
 
+        /**
+         * Method that register a Data Server and store its 
+         * URL in the well know servers structure.
+         **/ 
         public int RegisterDataServer(string url)
         {
             int serverId = this.dataServerId;
@@ -45,7 +52,11 @@ namespace MasterServer
         }
 
 
-        public string getDataServerAddress()
+        /**
+         * Method that returns the address of the data server that has less
+         * PadInt's objects stored.
+         **/
+        public string GetDataServerAddress()
         {
             int minValue = 2048;
             int serverID = 0;
@@ -91,7 +102,7 @@ namespace MasterServer
          * Method that returns the DataServer address where the PadInt
          * with id UID is stored.
          **/
-        public string getPadIntLocation(int uid)
+        public string GetPadIntLocation(int uid)
         {
             return this.objectLocation[uid];
         }
@@ -107,7 +118,7 @@ namespace MasterServer
             {
                 foreach (string url in this.serverAddress.Values)
                 {
-                    IDataServer remoteServer = getDataServerInstance(url);
+                    IDataServer remoteServer = GetDataServerInstance(url);
                     answer = remoteServer.DumpState();
                 }
             }
@@ -115,7 +126,11 @@ namespace MasterServer
             return answer;
         }
 
-        public IDataServer getDataServerInstance(string url)
+        /**
+         * Method that returns an remote object instance to the 
+         * Data Server registered at url.
+         **/ 
+        public IDataServer GetDataServerInstance(string url)
         {
            
           IDataServer remoteServer = (IDataServer)Activator.GetObject(

@@ -12,13 +12,13 @@ namespace PADI_DSTM
 {
     public class PadiDstm
     {
-        private static TcpChannel channel;
-        private static int CurrentTxID;
-        private static Dictionary<int, PadInt> cachedObjects;
-
         public static readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
-        private static string DATA_SERVER_RECOVERY_ADDRESS;
-
+        
+        private static IMasterServer remoteMaster;
+        private static TcpChannel channel;
+        private static Dictionary<int, PadInt> cachedObjects;
+        
+        
         static PadiDstm() { }
 
         public static bool Init()
@@ -39,6 +39,10 @@ namespace PADI_DSTM
             return true;
         }
 
+        /**
+         * Method that makes all nodes in the system dump to their output
+         * their current state.
+         **/ 
         public static bool Status()
         {
             IMasterServer remoteMaster = getMasterInstance();
@@ -46,21 +50,33 @@ namespace PADI_DSTM
             return answer;
         }
 
+        /**
+         * Method that makes the serfver at the URL stop responding to external
+         * calls wxcept for a Recover call.
+         **/ 
         public static bool Fail(string URL)
         {
             IDataServer remoteServer = getDataServerInstance(URL);
-            DATA_SERVER_RECOVERY_ADDRESS = remoteServer.Disconnect();
-            return true;
+            return remoteServer.Disconnect();
         }
 
+        /**
+         * Method that makes the server at the URL stop responding to external calls
+         * but it maintains all calls for later reply. 
+         **/ 
         public static bool Freeze(string URL)
         {
-            return true;
+            IDataServer remoteServer = getDataServerInstance(URL);
+            return remoteServer.FreezeDataServer();
         }
 
+        /**
+         * Method that makes the server at URL recover from a previous Fail or Freeze call.
+         **/ 
         public static bool Recover(string URL)
         {
-            return true;
+            IDataServer remoteServer = getDataServerInstance(URL);
+            return remoteServer.RecoverDataServer();
         }
 
         /**
@@ -123,10 +139,12 @@ namespace PADI_DSTM
          **/ 
         private static IMasterServer getMasterInstance()
         {
-           IMasterServer remoteMaster = (IMasterServer)Activator.GetObject(
-                    typeof(IMasterServer),
-                    MASTER_SERVER_ADDRESS);
-            
+            if (remoteMaster == null)
+            {
+                remoteMaster = (IMasterServer)Activator.GetObject(
+                         typeof(IMasterServer),
+                         MASTER_SERVER_ADDRESS);
+            }
             return remoteMaster;
         }
 
