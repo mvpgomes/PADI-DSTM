@@ -93,5 +93,26 @@ namespace MasterServer
         public string getPadIntLocation(int uid){
             return this.objectLocation[uid];
         }
+
+
+        public Transaction OpenTransaction()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool CloseTransaction(Transaction trans)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AbortTransaction(Transaction trans)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Join(Transaction trans, int participant)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

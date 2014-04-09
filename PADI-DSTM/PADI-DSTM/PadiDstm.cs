@@ -186,21 +186,5 @@ namespace PADI_DSTM
 
 
     }
-    
-    public interface Coordinator
-    {
-        //Start a new transaction and delivers a unique TID trans
-        Transaction OpenTransaction();
-
-        //Ends a transaction: (true) a commit return value indicates that the transaction has committed
-        //(false) an abort return value indicates that it has aborted
-        bool CloseTransaction(Transaction trans);
-
-        //Aborts the transaction
-        void AbortTransaction(Transaction trans);
-
-        //Informs a coordinator that a new participant has joined the transaction trans
-        void Join(Transaction trans, int participant);
-    }
 
 }
