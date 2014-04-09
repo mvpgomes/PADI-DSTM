@@ -51,6 +51,18 @@ namespace CommonTypes
         void getSavedObjects();
         //
         Dictionary<int, PadInt> returnPadIntDB();
+
+        //Data Servers will implement participant's transaction interface
+
+        //Call from coordinator to participant to ask whether it can commit a transaction
+        //Participant replies with its vote
+        bool CanCommit(Transaction trans);
+
+        //Call from coordinator to participant to tell participant to commit its part of a transaction
+        void DoCommit(Transaction trans);
+
+        //Call from coordinator to participant to tell participant to abort its part of a transaction
+        void DoAbort(Transaction trans);
     }
 
     /**
@@ -78,6 +90,14 @@ namespace CommonTypes
 
         //Informs a coordinator that a new participant has joined the transaction trans
         void Join(Transaction trans, int participant);
+
+        //Call from participant to coordinator to confirm that it has committed the transaction
+        void HaveCommitted(Transaction trans, int participant);
+
+        //Call from participant to coordinator to ask for the decision on a transaction
+        //when it has voted Yes but has still had no reply after some delay
+        //Used to recover from server crash or delayed messages
+        bool GetDecision(Transaction trans);
     }
 
     //This is a encapsulation of the Transaction Identifier
@@ -86,7 +106,7 @@ namespace CommonTypes
         private int id;
         public TID(int id) { this.id = id; }
 
-        int getID() { return this.id; }
+        int GetID() { return this.id; }
     }
 
     //It is a representation of the Transaction
@@ -96,6 +116,6 @@ namespace CommonTypes
         TID tid;
         public Transaction(TID tid) { this.tid = tid; }
 
-        TID getTID() { return this.tid; }
+        TID GetTID() { return this.tid; }
     }
 }

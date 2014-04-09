@@ -106,5 +106,21 @@ namespace DataServer
         public void getSavedObjects() { 
         
         }
+
+
+        public bool CanCommit(Transaction trans)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DoCommit(Transaction trans)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DoAbort(Transaction trans)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

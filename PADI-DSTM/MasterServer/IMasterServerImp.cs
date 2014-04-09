@@ -114,5 +114,16 @@ namespace MasterServer
         {
             throw new NotImplementedException();
         }
+
+
+        public void HaveCommitted(Transaction trans, int participant)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool GetDecision(Transaction trans)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
