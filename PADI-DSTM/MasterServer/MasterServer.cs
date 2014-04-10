@@ -9,6 +9,7 @@ using System.Runtime.Remoting;
 
 namespace MasterServer
 {
+
     class MasterServer
     {
         static void Main(string[] args)

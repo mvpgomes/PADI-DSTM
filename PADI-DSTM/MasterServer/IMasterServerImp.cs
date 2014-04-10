@@ -7,6 +7,66 @@ using CommonTypes;
 
 namespace MasterServer
 {
+   
+    class TidGenerator
+    {
+        static private int count = 0;
+
+        public static TID GenerateTID()
+        {
+            return new TID(TidGenerator.count++);
+        }
+    }
+
+    class TransactionManager
+    {
+        private Dictionary<TID, Transaction> trans;
+
+        public TransactionManager()
+        {
+            this.trans = new Dictionary<TID, Transaction>();
+        }
+
+        public bool AddTransaction(Transaction trans)
+        {
+            bool res = false;
+
+            try
+            {
+                this.trans.Add(trans.GetTID(), trans);
+                res = true;
+            }
+            catch (Exception) { return res; }
+
+            return res;
+        }
+
+        public Transaction GetTransaction(TID tid)
+        {
+            Transaction t = null;
+            try
+            {
+                t = this.trans[tid];
+            }
+            catch (Exception) { return null; }
+
+            return t;
+        }
+
+        public override string ToString()
+        {
+            string aux = "";
+
+            foreach (KeyValuePair<TID, Transaction> entry in this.trans)
+            {
+                aux += entry.Key.ToString() + entry.Value.ToString() + " | ";
+            }
+            return aux;
+        }
+
+    }
+
+
     class IMasterServerImp : MarshalByRefObject, IMasterServer
     {
         private int dataServerId;
@@ -16,11 +76,14 @@ namespace MasterServer
         private Dictionary<int, string> objectLocation;
         private Dictionary<int, int> storageVector;
 
+        private TransactionManager tm;
+
         private IMasterServerImp() {
             this.serverAddress = new Dictionary<int, string>();
             this.objectLocation = new Dictionary<int,string>();
             this.storageVector = new Dictionary<int, int>();
             this.dataServerId = 0;
+            this.tm = new TransactionManager();
         }
 
         /**
@@ -155,6 +218,40 @@ namespace MasterServer
                                    url);
             
             return remoteServer;
+        }
+
+
+        public Transaction OpenTransaction()
+        {
+            TID tid = TidGenerator.GenerateTID();
+            Transaction trans = new Transaction(tid);
+            tm.AddTransaction(trans);
+            return trans;
+        }
+
+        public bool CloseTransaction(Transaction trans)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AbortTransaction(Transaction trans)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Join(Transaction trans, int participant)
+        {
+            trans.AddParticipant(participant);
+        }
+
+        public void HaveCommitted(Transaction trans, int participant)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool GetDecision(Transaction trans)
+        {
+            throw new NotImplementedException();
         }
     }
 }
