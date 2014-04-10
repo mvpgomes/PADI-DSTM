@@ -179,7 +179,7 @@ namespace MasterServer
 
         public void Join(Transaction trans, int participant)
         {
-            throw new NotImplementedException();
+            trans.AddParticipant(participant);
         }
 
         public void HaveCommitted(Transaction trans, int participant)

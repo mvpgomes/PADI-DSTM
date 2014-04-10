@@ -120,10 +120,20 @@ namespace CommonTypes
     public class Transaction
     {
         private TID tid;
+        private List<int> partcipants;
         
-        public Transaction(TID tid) { this.tid = tid; }
+        public Transaction(TID tid) 
+        { 
+            this.tid = tid;
+            partcipants = new List<int>();
+        }
         
         public TID GetTID() { return this.tid; }
+
+        public void AddParticipant(int participant)
+        {
+            this.partcipants.Add(participant);
+        }
 
         public override string ToString()
         {
