@@ -120,18 +120,23 @@ namespace PADI_DSTM
         {
             PadInt reference = null;
 
-            if (!cachedObjects.ContainsKey(uid))
+            try
             {
-                try
+                if (!cachedObjects.ContainsKey(uid))
                 {
+
+
                     IMasterServer remoteMaster = getMasterInstance();
                     string dataServerAddress = remoteMaster.GetPadIntLocation(uid);
 
                     IDataServer remoteServer = getDataServerInstance(dataServerAddress);
+
                     reference = remoteServer.AccessObject(uid);
                 }
-                catch (Exception) { return null; }
+
             }
+            catch (Exception) { return null; }
+            
             return reference;
         }
 
