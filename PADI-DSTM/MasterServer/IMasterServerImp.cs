@@ -7,6 +7,16 @@ using CommonTypes;
 
 namespace MasterServer
 {
+    class TidGenerator
+    {
+        static private int count = 0;
+
+        public static TID GenerateTID()
+        {            
+            return new TID(TidGenerator.count++);
+        }
+    }
+
     class TransactionManager
     {
         private Dictionary<TID, Transaction> trans;
@@ -16,9 +26,18 @@ namespace MasterServer
             this.trans = new Dictionary<TID, Transaction>();
         }
 
-        void AddTransaction(Transaction trans)
+        public bool AddTransaction(Transaction trans)
         {
-            this.trans.Add(trans.GetTID(), trans);
+            bool res = false;
+
+            try
+            {
+                this.trans.Add(trans.GetTID(), trans);
+                res = true;
+            }
+            catch (Exception) { return res; }
+
+            return res;
         }
 
         public Transaction GetTransaction(TID tid)
@@ -54,13 +73,17 @@ namespace MasterServer
         private Dictionary<int, string> serverAddress;
         private Dictionary<int, string> objectLocation;
         private Dictionary<int, int> versionVector;
+
+        private TransactionManager tm;
      
         private IMasterServerImp() 
         {
             this.serverAddress = new Dictionary<int, string>();
             this.objectLocation = new Dictionary<int,string>();
             this.versionVector = new Dictionary<int, int>();
-           
+
+            this.tm = new TransactionManager();
+
             this.dataServerId = 0;
         }
 
@@ -134,11 +157,14 @@ namespace MasterServer
         public string getPadIntLocation(int uid){
             return this.objectLocation[uid];
         }
-
-
+        
         public Transaction OpenTransaction()
         {
-            throw new NotImplementedException();
+            TID tid = TidGenerator.GenerateTID();
+            Transaction trans = new Transaction(tid);
+            tm.AddTransaction(trans);
+
+            return trans;
         }
 
         public bool CloseTransaction(Transaction trans)
@@ -155,7 +181,6 @@ namespace MasterServer
         {
             throw new NotImplementedException();
         }
-
 
         public void HaveCommitted(Transaction trans, int participant)
         {

@@ -108,6 +108,11 @@ namespace CommonTypes
         public TID(int id) { this.id = id; }
 
         public int GetID() { return this.id; }
+
+        public override string ToString()
+        {
+            return "TID value: " + this.id.ToString(); 
+        }
     }
 
     //It is a representation of the Transaction
@@ -119,5 +124,10 @@ namespace CommonTypes
         public Transaction(TID tid) { this.tid = tid; }
         
         public TID GetTID() { return this.tid; }
+
+        public override string ToString()
+        {
+            return "Trans with " + tid.ToString();
+        }
     }
 }
