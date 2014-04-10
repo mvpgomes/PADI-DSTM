@@ -14,12 +14,12 @@ namespace MasterServer
        
         private Dictionary<int, string> serverAddress;
         private Dictionary<int, string> objectLocation;
-        private Dictionary<int, int> versionVector;
+        private Dictionary<int, int> storageVector;
 
         private IMasterServerImp() {
             this.serverAddress = new Dictionary<int, string>();
             this.objectLocation = new Dictionary<int,string>();
-            this.versionVector = new Dictionary<int, int>();
+            this.storageVector = new Dictionary<int, int>();
             this.dataServerId = 0;
         }
 
@@ -45,7 +45,8 @@ namespace MasterServer
         public int RegisterDataServer(string url)
         {
             int serverId = this.dataServerId;
-            this.serverAddress.Add(this.dataServerId, url);
+            this.serverAddress.Add(serverId, url);
+            this.storageVector.Add(serverId, 0);
             this.dataServerId++;
             Console.WriteLine("The server hosted at " + url + " was registred with sucess !");
             return serverId;
@@ -60,11 +61,13 @@ namespace MasterServer
         {
             int minValue = 2048;
             int serverID = 0;
-            foreach (KeyValuePair<int, int> entry in versionVector)
+            foreach (KeyValuePair<int, int> entry in storageVector)
             {
-                if (entry.Value <= minValue)
+                if (entry.Value < minValue)
+                {
                     minValue = entry.Value;
                     serverID = entry.Key;
+                }
             }
             return this.serverAddress[serverID];
         }
@@ -73,9 +76,19 @@ namespace MasterServer
          * Method that receives the id from a DataServer and 
          * returns its respective URL.
          **/
-        public string GetServerAddr(int serverID)
+        public int GetDataServerId(string url)
         {
-            return this.serverAddress[serverID];
+            int serverID = 0;
+
+            foreach (KeyValuePair<int, string> entry in serverAddress)
+            {
+                if (entry.Value == url)
+                {
+                    serverID = entry.Key;
+                }
+            }
+
+            return serverID;
         }
 
         /**
@@ -95,6 +108,9 @@ namespace MasterServer
         public bool ObjCreatedSuccess(string url, int uid)
         {
             this.objectLocation.Add(uid, url);
+            // Update the storageVector
+            int serverID = GetDataServerId(url);
+            this.storageVector[serverID]++;
             return true;
         }
 
@@ -123,6 +139,7 @@ namespace MasterServer
                 }
             }
             catch (Exception e) { Console.WriteLine(e.StackTrace); }
+
             return answer;
         }
 

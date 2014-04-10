@@ -97,6 +97,7 @@ namespace PADI_DSTM
             {
                IMasterServer remoteMaster = getMasterInstance();
                string dataServerAddress = remoteMaster.GetDataServerAddress();
+               Console.WriteLine(dataServerAddress);
                IDataServer remoteServer = getDataServerInstance(dataServerAddress); 
                reference = remoteServer.CreateObject(uid);
                cachedObjects.Add(uid, reference);

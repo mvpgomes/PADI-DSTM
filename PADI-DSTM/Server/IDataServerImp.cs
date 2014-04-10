@@ -13,6 +13,7 @@ namespace DataServer
 {
     class IDataServerImp : MarshalByRefObject, IDataServer
     {
+        private int WorkingThreads;
         private int DataServerState;
 
         private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
@@ -21,11 +22,14 @@ namespace DataServer
 
         private enum State { Failed, Freezed, Functional }
 
+        private object waiting = new object();
+
 
         public IDataServerImp()
         {
             this.padIntDB = new Dictionary<int, PadInt>();
             this.DataServerState = (int)State.Functional;
+            this.WorkingThreads = 0;
         }
 
         /**
@@ -34,15 +38,15 @@ namespace DataServer
          **/
         public PadInt CreateObject(int uid)
         {
-            lock (this)
+            lock (this.waiting)
             {
 
                 if (this.DataServerState == (int)State.Freezed)
                 {
-                    Monitor.Wait(this);
-                    return null;
+                    this.WorkingThreads++;
+                    Monitor.Wait(this.waiting);
                 }
-                else if (!PermissionToCreate(uid))
+                if (!PermissionToCreate(uid))
                 {
                     PadInt padIntObject = new PadInt(uid);
                     this.padIntDB.Add(uid, padIntObject);
@@ -62,7 +66,16 @@ namespace DataServer
          **/
         public PadInt AccessObject(int uid)
         {
-            return this.padIntDB[uid];
+            lock (this.waiting)
+            {
+                if (this.DataServerState == (int)State.Freezed)
+                {
+                    this.WorkingThreads++;
+                    Monitor.Wait(this.waiting);
+                }
+
+                return this.padIntDB[uid];
+            }
         }
 
         /**
@@ -107,13 +120,22 @@ namespace DataServer
          **/
         public bool DumpState()
         {
-            Console.WriteLine("Data Server ID : " + DataServer.dataServerID);
-            Console.WriteLine("Stored PadInt's in this Server :");
-            foreach (int id in padIntDB.Keys)
+            lock (this.waiting)
             {
-                Console.WriteLine("ID : " + id);
+                if (this.DataServerState == (int)State.Freezed)
+                {
+                    this.WorkingThreads++;
+                    Monitor.Wait(this.waiting);
+                }
+
+                Console.WriteLine("Data Server ID : " + DataServer.dataServerID);
+                Console.WriteLine("Stored PadInt's in this Server :");
+                foreach (int id in padIntDB.Keys)
+                {
+                    Console.WriteLine("ID : " + id);
+                }
+                return true;
             }
-            return true;
         }
 
         /**
@@ -123,16 +145,25 @@ namespace DataServer
          **/
         public bool Disconnect()
         {
-            try
+            lock (this.waiting)
             {
-                this.DataServerState = (int)State.Failed;
-                ChannelServices.UnregisterChannel(DataServer.channel);
-                return true;
-            }
-            catch (ArgumentException e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
+                if (this.DataServerState == (int)State.Freezed)
+                {
+                    this.WorkingThreads++;
+                    Monitor.Wait(this.waiting);
+                }
+
+                try
+                {
+                    this.DataServerState = (int)State.Failed;
+                    ChannelServices.UnregisterChannel(DataServer.channel);
+                    return true;
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine(e.Message);
+                    return false;
+                }
             }
         }
 
@@ -143,13 +174,18 @@ namespace DataServer
          **/
         public bool FreezeDataServer()
         {
-            if (this.DataServerState == (int)State.Functional)
+            lock(this.waiting)
             {
-                this.DataServerState = (int)State.Freezed;
-                return true;
+
+                if (this.DataServerState == (int)State.Functional)
+                {
+                    this.DataServerState = (int)State.Freezed;
+                    Monitor.Enter(this.waiting);
+                    return true;
+                }
+                else { return false; }
             }
-            else { return false; }
-        }
+         }
 
         /**
          * Method that change the Data Server actual state to Functional.
@@ -163,8 +199,17 @@ namespace DataServer
             {
                 if (this.DataServerState == (int)State.Freezed)
                 {
+                    int ActiveThreads = this.WorkingThreads;
                     this.DataServerState = (int)State.Functional;
-                    Monitor.PulseAll(this);
+                    for (int i = 0; i < ActiveThreads; i++)
+                    {
+                        Thread.Sleep(1000);
+                        lock (this.waiting)
+                        {
+                            this.WorkingThreads--;
+                            Monitor.Pulse(this.waiting);
+                        }
+                    }
                     answer = true;
                 }
                 else { answer = false; }
