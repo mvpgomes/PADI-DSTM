@@ -13,9 +13,8 @@ namespace PADI_DSTM
     public class PadiDstm
     {
         public static readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
-        
-        private static IMasterServer remoteMaster;
         private static TcpChannel channel;
+        private static IMasterServer remoteMaster;
         private static Dictionary<int, PadInt> cachedObjects;
         
         
@@ -23,9 +22,9 @@ namespace PADI_DSTM
 
         public static bool Init()
         {
+            cachedObjects = new Dictionary<int, PadInt>();
             channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, false);
-            cachedObjects = new Dictionary<int, PadInt>();
             return true;
         }
 
@@ -95,12 +94,12 @@ namespace PADI_DSTM
 
             try
             {
-               IMasterServer remoteMaster = getMasterInstance();
-               string dataServerAddress = remoteMaster.GetDataServerAddress();
-               Console.WriteLine(dataServerAddress);
-               IDataServer remoteServer = getDataServerInstance(dataServerAddress); 
-               reference = remoteServer.CreateObject(uid);
-               cachedObjects.Add(uid, reference);
+                IMasterServer remoteMaster = getMasterInstance();
+                string dataServerAddress = remoteMaster.GetDataServerAddress();
+                Console.WriteLine(dataServerAddress);
+                IDataServer remoteServer = getDataServerInstance(dataServerAddress); 
+                reference = remoteServer.CreateObject(uid);
+                cachedObjects.Add(uid, reference);
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); }
 

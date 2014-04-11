@@ -61,7 +61,7 @@ namespace DataServer
             IDataServerImp dataServer = new IDataServerImp(dataServerID, dataServerAddr);
           
             //Registering the service
-            RemotingServices.Marshal(dataServer, "DataServer" + dataServerID.ToString(),
+            RemotingServices.Marshal(dataServer, "DataServer",
             typeof(IDataServerImp));
 
             Console.WriteLine("Data Server Running at: " + dataServerAddr);

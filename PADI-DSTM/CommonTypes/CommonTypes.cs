@@ -31,6 +31,7 @@ namespace CommonTypes
         public PadInt(int uid)
         {
             this.uid = uid;
+            this.value = 0;
         }
 
         /**
@@ -49,6 +50,11 @@ namespace CommonTypes
         public void Write(int value)
         {
             this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return "uid: " + this.uid + " val: " + this.value;
         }
     }
 
