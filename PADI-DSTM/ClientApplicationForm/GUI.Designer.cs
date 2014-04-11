@@ -144,7 +144,7 @@
             // URLTextBox
             // 
             this.URLTextBox.Location = new System.Drawing.Point(65, 283);
-            this.URLTextBox.MaxLength = 20;
+            this.URLTextBox.MaxLength = 40;
             this.URLTextBox.Name = "URLTextBox";
             this.URLTextBox.Size = new System.Drawing.Size(200, 20);
             this.URLTextBox.TabIndex = 11;
@@ -241,6 +241,7 @@
             this.readButton.TabIndex = 21;
             this.readButton.Text = "Read";
             this.readButton.UseVisualStyleBackColor = true;
+            this.readButton.Click += new System.EventHandler(this.ReadPadInt);
             // 
             // writeButton
             // 
@@ -250,6 +251,7 @@
             this.writeButton.TabIndex = 22;
             this.writeButton.Text = "Write";
             this.writeButton.UseVisualStyleBackColor = true;
+            this.writeButton.Click += new System.EventHandler(this.WritePadInt);
             // 
             // label4
             // 

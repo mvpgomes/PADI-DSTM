@@ -25,8 +25,8 @@ namespace CommonTypes
     [Serializable()]
     public class PadInt
     {
-        private int uid;
-        private int value;
+        public int uid;
+        public int value;
 
         public PadInt(int uid)
         {
@@ -121,6 +121,7 @@ namespace CommonTypes
 
 
     //This is a encapsulation of the Transaction Identifier
+    [Serializable()]
     public class TID
     {
         private int id;
@@ -137,14 +138,17 @@ namespace CommonTypes
 
     //It is a representation of the Transaction
     //TID must be unique
+    [Serializable()]
     public class Transaction
     {
         private TID tid;
         private List<int> partcipants;
+        private Dictionary<int, int> ModifiedObjects;
 
         public Transaction(TID tid)
         {
             this.tid = tid;
+            this.ModifiedObjects = new Dictionary<int, int>();
             partcipants = new List<int>();
         }
 
@@ -154,6 +158,13 @@ namespace CommonTypes
         {
             this.partcipants.Add(participant);
         }
+
+        public void AddModifiedObject(PadInt obj)
+        {
+            this.ModifiedObjects.Add(obj.uid, obj.value);
+        }
+
+        public List<int> GetParticipants() { return this.partcipants; }
 
         public override string ToString()
         {

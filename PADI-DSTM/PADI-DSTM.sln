@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterServer", "MasterServer\MasterServer.csproj", "{23D47FAA-236A-4EE7-95BA-811385957F73}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServer", "Server\DataServer.csproj", "{0F0A815C-E24C-40F8-8603-FEB726A25711}"
@@ -12,8 +10,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PADI-DSTM", "PADI-DSTM\PADI-DSTM.csproj", "{966E92BE-9872-43F0-897E-4152D7B562D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientApplication", "ClientApplicationForm\ClientApplication.csproj", "{84F63661-FBAA-416D-8E6A-2852E80F67FB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{C63C585A-16B4-4D99-8986-00211CC394DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +37,6 @@ Global
 		{84F63661-FBAA-416D-8E6A-2852E80F67FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84F63661-FBAA-416D-8E6A-2852E80F67FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84F63661-FBAA-416D-8E6A-2852E80F67FB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C63C585A-16B4-4D99-8986-00211CC394DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C63C585A-16B4-4D99-8986-00211CC394DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C63C585A-16B4-4D99-8986-00211CC394DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C63C585A-16B4-4D99-8986-00211CC394DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

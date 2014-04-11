@@ -217,7 +217,7 @@ namespace DataServer
                             Monitor.Pulse(this.waiting);
                         }
                     }
-                    answer = true;
+                  answer = true;
                 }
                 else { answer = false; }
             }

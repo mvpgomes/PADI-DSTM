@@ -15,27 +15,45 @@ namespace PADI_DSTM
         public static readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
         private static TcpChannel channel;
         private static IMasterServer remoteMaster;
-        private static Dictionary<int, PadInt> cachedObjects;
-        
-        
+        private static Transaction CurrentTx;
+       
         static PadiDstm() { }
 
         public static bool Init()
         {
-            cachedObjects = new Dictionary<int, PadInt>();
             channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, false);
+            CurrentTx = null;
             return true;
         }
 
         public static bool TxBegin()
         {
-            return true;
+            remoteMaster = getMasterInstance();
+            if (CurrentTx == null)
+            {
+                CurrentTx = remoteMaster.OpenTransaction();
+                return true;
+            }
+            else
+            {
+                throw new TxException("The transaction is already opened.");
+            }
         }
 
         public static bool TxCommit()
-        { 
-            return true;
+        {
+            remoteMaster = getMasterInstance();
+            if (CurrentTx != null)
+            {
+                remoteMaster.CloseTransaction(CurrentTx);
+                CurrentTx = null;
+                return true;
+            }
+            else
+            {
+                throw new TxException("The transaction does not exist or was already aborted.");
+            }
         }
 
         /**
@@ -99,7 +117,6 @@ namespace PADI_DSTM
                 Console.WriteLine(dataServerAddress);
                 IDataServer remoteServer = getDataServerInstance(dataServerAddress); 
                 reference = remoteServer.CreateObject(uid);
-                cachedObjects.Add(uid, reference);
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); }
 
@@ -121,18 +138,10 @@ namespace PADI_DSTM
 
             try
             {
-                if (!cachedObjects.ContainsKey(uid))
-                {
-
-
-                    IMasterServer remoteMaster = getMasterInstance();
-                    string dataServerAddress = remoteMaster.GetPadIntLocation(uid);
-
-                    IDataServer remoteServer = getDataServerInstance(dataServerAddress);
-
-                    reference = remoteServer.AccessObject(uid);
-                }
-
+                IMasterServer remoteMaster = getMasterInstance();
+                string dataServerAddress = remoteMaster.GetPadIntLocation(uid);
+                IDataServer remoteServer = getDataServerInstance(dataServerAddress);
+                reference = remoteServer.AccessObject(uid);
             }
             catch (Exception) { return null; }
             

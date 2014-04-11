@@ -14,10 +14,12 @@ namespace ClientApplicationForm
 {
     public partial class GUI : Form
     {
+        private Dictionary<int, PadInt> cachedObjects;
         private bool isOnTrans;
         public GUI()
         {
             InitializeComponent();
+            this.cachedObjects = new Dictionary<int, PadInt>();
             this.isOnTrans = false;
         }
 
@@ -56,6 +58,8 @@ namespace ClientApplicationForm
 
         private void AccessPadInt_Click(object sender, EventArgs e)
         {
+            PadInt res = null;
+
             string PadIntID = uidTxt.Text;
 
             if (!this.isOnTrans)
@@ -70,7 +74,17 @@ namespace ClientApplicationForm
                 return;
             }
 
-            PadInt res = PadiDstm.AccessPadInt(Convert.ToInt32(PadIntID));
+            int uid = Convert.ToInt32(PadIntID);
+
+            if (!cachedObjects.ContainsKey(uid))
+            {
+                res = PadiDstm.AccessPadInt(uid);
+                cachedObjects.Add(uid, res);
+            }
+            else
+            {
+                res = cachedObjects[Convert.ToInt32(PadIntID)];
+            }
 
             if (res == null)
             {
@@ -144,6 +158,7 @@ namespace ClientApplicationForm
             {
                 PadiDstm.TxCommit();
                 this.isOnTrans = false;
+                updateLog("Transaction Aborted.");
             }
             else
             {
@@ -153,29 +168,25 @@ namespace ClientApplicationForm
 
         private void TxBegin_Click(object sender, EventArgs e)
         {
-            if(this.isOnTrans) 
+            try
             {
-                updateLog("Error. No support for nested transaction.");
-                return;
+                PadiDstm.TxBegin();
+                this.isOnTrans = true;
+                updateLog("Transaction Started.");
             }
-            this.isOnTrans = true;
-
-            PadiDstm.TxBegin();
+            catch (TxException ex) { updateLog(ex.Message); }
         }
 
         private void TxCommit_Click(object sender, EventArgs e)
         {
-            if (this.isOnTrans)
+            try
             {
                 PadiDstm.TxCommit();
                 this.isOnTrans = false;
+                updateLog("Transaction Committed.");
             }
-            else
-            {
-                updateLog("Please Begin a transaction.");
-            }
-
-        }
+            catch (TxException ex) { updateLog(ex.Message); }  
+       }
 
         private void updateLog(string message)
         {
@@ -193,6 +204,43 @@ namespace ClientApplicationForm
             string masterPort = masterPortTxt.Text;
 
             PadiDstm.Init();
+        }
+
+        private void WritePadInt(object sender, EventArgs e)
+        {
+            if (uidTxt.Text.Length == 0 || valueTxt.Text.Length == 0)
+            {
+                updateLog("Please insert valid values.");
+                return;
+            }
+            
+            int uid = Convert.ToInt32(uidTxt.Text);
+            int value = Convert.ToInt32(valueTxt.Text);
+
+            try
+            {
+                PadInt obj = cachedObjects[uid];
+                obj.Write(value);                
+            }
+            catch (Exception) { updateLog("The PadInt with id " + uid + " does not exist."); }
+        }
+
+        private void ReadPadInt(object sender, EventArgs e)
+        {
+            if (uidTxt.Text.Length == 0)
+            {
+                updateLog("Please insert valid ID.");
+                return;
+            }
+
+            int uid = Convert.ToInt32(uidTxt.Text);
+
+            try
+            {
+                PadInt obj = cachedObjects[uid];
+                updatePadintStack(obj.ToString());
+            }
+            catch (Exception) { updateLog("The PadInt with id " + uid + " does not exist."); }                
         }
     }
 }

@@ -183,7 +183,11 @@ namespace MasterServer
          **/
         public string GetPadIntLocation(int uid)
         {
-            return this.objectLocation[uid];
+            try
+            {
+                return this.objectLocation[uid];
+            }
+            catch (Exception) { return null; }
         }
 
         /**
@@ -231,12 +235,20 @@ namespace MasterServer
 
         public bool CloseTransaction(Transaction trans)
         {
-            throw new NotImplementedException();
+            foreach (int participant in trans.GetParticipants())
+            {
+                //ask for vote
+            }
+            
+            return true;
         }
 
         public void AbortTransaction(Transaction trans)
         {
-            throw new NotImplementedException();
+            foreach (int participant in trans.GetParticipants())
+            {
+
+            }
         }
 
         public void Join(Transaction trans, int participant)
@@ -246,12 +258,12 @@ namespace MasterServer
 
         public void HaveCommitted(Transaction trans, int participant)
         {
-            throw new NotImplementedException();
-        }
+
+        }   
 
         public bool GetDecision(Transaction trans)
         {
-            throw new NotImplementedException();
+            return true;
         }
     }
 }
