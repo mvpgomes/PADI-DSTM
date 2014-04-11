@@ -13,23 +13,30 @@ namespace DataServer
 {
     class IDataServerImp : MarshalByRefObject, IDataServer
     {
-        private int WorkingThreads;
-        private int DataServerState;
-
         private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
 
+        private int WorkingThreads;
+        private int DataServerState;
         private Dictionary<int, PadInt> padIntDB;
-
         private enum State { Failed, Freezed, Functional }
-
         private object waiting = new object();
-
+        private int dataServerID;
+        private string url;
 
         public IDataServerImp()
         {
             this.padIntDB = new Dictionary<int, PadInt>();
             this.DataServerState = (int)State.Functional;
             this.WorkingThreads = 0;
+        }
+
+        public IDataServerImp(int dataServerID, string url)
+        {
+            this.padIntDB = new Dictionary<int, PadInt>();
+            this.DataServerState = (int)State.Functional;
+            this.WorkingThreads = 0;
+            this.dataServerID = dataServerID;
+            this.url = url;
         }
 
         /**
@@ -50,7 +57,7 @@ namespace DataServer
                 {
                     PadInt padIntObject = new PadInt(uid);
                     this.padIntDB.Add(uid, padIntObject);
-                    NotifyMasterServer(DataServer.dataServerAddr, uid);
+                    NotifyMasterServer(this.url, uid);
                     Console.WriteLine("Object with id " + uid + " created with sucess"); ;
                     return padIntObject;
                 }
@@ -127,8 +134,8 @@ namespace DataServer
                     this.WorkingThreads++;
                     Monitor.Wait(this.waiting);
                 }
-
-                Console.WriteLine("Data Server ID : " + DataServer.dataServerID);
+                Console.WriteLine("DataServer URL : " + this.url);
+                Console.WriteLine("Data Server ID : " + this.dataServerID);
                 Console.WriteLine("Stored PadInt's in this Server :");
                 foreach (int id in padIntDB.Keys)
                 {

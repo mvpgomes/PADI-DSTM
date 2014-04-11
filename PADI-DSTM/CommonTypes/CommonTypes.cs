@@ -6,27 +6,40 @@ using System.Threading.Tasks;
 
 namespace CommonTypes
 {
+    [Serializable()]
+    public class TxException : System.Exception
+    {
+        public TxException() : base() { }
+        public TxException(string message) : base(message) { }
+        public TxException(string message, System.Exception inner) : base(message, inner) { }
+
+        // A constructor is needed for serialization when an 
+        // exception propagates from a remoting server to the client.  
+        protected TxException(System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context) { }
+    }
+
     /**
-    * Class that represents a PadInt object that is shared between the distributed system.
-    **/
-    [Serializable]
+   * Class that represents a PadInt object that is shared between the distributed system.
+   **/
+    [Serializable()]
     public class PadInt
     {
         private int uid;
-        private int padIntValue;
+        private int value;
 
         public PadInt(int uid)
         {
             this.uid = uid;
         }
-        
+
         /**
          *  Method that reads the object PadInt, and return the value of the object.
          *  @throws TxException
          **/
         public int Read()
         {
-            return this.padIntValue;
+            return this.value;
         }
 
         /**
@@ -35,7 +48,7 @@ namespace CommonTypes
          **/
         public void Write(int value)
         {
-            this.padIntValue = value;
+            this.value = value;
         }
     }
 

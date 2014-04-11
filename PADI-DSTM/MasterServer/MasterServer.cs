@@ -14,11 +14,20 @@ namespace MasterServer
     {
         static void Main(string[] args)
         {
-           
-             //registering server at port 8086
-            TcpChannel channel = new TcpChannel(8086);
-            ChannelServices.RegisterChannel(channel, false);
-
+           try
+           {
+               //registering server at port 8086
+               TcpChannel channel = new TcpChannel(8086);
+               ChannelServices.RegisterChannel(channel, false);
+           }
+           catch (Exception e)
+           {
+               Console.WriteLine("MasterServer exception: " + e.Message);
+               Console.WriteLine("<enter> to exit ...");
+               Console.ReadLine();
+               return;
+           }
+            
             RemotingConfiguration.RegisterWellKnownServiceType(typeof(IMasterServerImp),
                "MasterServer", WellKnownObjectMode.Singleton);
 
