@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Threading.Tasks;
+using System.Threading.Timer;
 
 namespace DataServer
 {
@@ -12,7 +13,7 @@ namespace DataServer
         private int period;
         private int delay;
         private bool isAlive;   
-        private Timer timer;
+        private Timer timerReference;
 
         /**
          *  Single instance for the CheckPrimaryLife object
@@ -27,7 +28,6 @@ namespace DataServer
         public CheckPrimaryLife(bool isAlive)
         {
             this.isAlive = isAlive;
-            this.timer = new Timer();
         }
 
         public int Period
@@ -48,10 +48,10 @@ namespace DataServer
             set { isAlive = value; }
         }
 
-        public Timer Timer
+        public Timer TimerReference
         {
-            get { return timer; }
-            set { timer = value; }
+            get { return timerReference; }
+            set { timerReference = value; }
         }
 
         public static CheckPrimaryLife getInstance()
@@ -64,9 +64,17 @@ namespace DataServer
             return instance;
         }
 
+        private void TimerTask(object StateObject) 
+        {
+            // This function is responsible to verify if
+            // the primary DataServer is alive.
+        }
+
         public void execute()
         {
-
+            // At this function the TimerTask is launched
+            // and its period is setup to execute in Period
+            // intervals.
         }
 
 

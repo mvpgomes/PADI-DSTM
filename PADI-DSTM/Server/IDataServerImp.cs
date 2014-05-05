@@ -14,14 +14,17 @@ namespace DataServer
     class IDataServerImp : MarshalByRefObject, IDataServer
     {
         private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
-
+        // Variables
         private int WorkingThreads;
         private int DataServerState;
+        private int dataServerID;
+        private string url;
+        // Data Structres
         private Dictionary<int, PadInt> padIntDB;
         private enum State { Failed, Freezed, Functional }
         private object waiting = new object();
-        private int dataServerID;
-        private string url;
+      
+
 
         public IDataServerImp()
         {

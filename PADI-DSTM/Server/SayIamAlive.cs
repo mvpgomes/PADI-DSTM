@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Timers;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Timer;
 
 namespace DataServer
 {
@@ -11,23 +12,21 @@ namespace DataServer
     {
         private int period;
         private int delay;
-        private Timer timer;
+        private Timer timerReference;
 
         /**
          * SayImAlive single instance  
          **/
         private static SayIamAlive instance = null;
 
-        public SayIamAlive()
+        public SayIamAlive(){}
+
+        public Timer TimerReference
         {
-            this.Timer = new Timer();
+            get { return timerReference; }
+            set { timerReference = value; }
         }
 
-        public Timer Timer
-        {
-            get { return timer; }
-            set { timer = value; }
-        }
 
         public int Delay
         {
@@ -51,9 +50,17 @@ namespace DataServer
             return instance;
         }
 
+        private void TimerTask(object StateObject)
+        {
+            // This function is responsible to send
+            // I'm alives to the replica
+        }
+
         public void execute()
         {
-
+            // At this function the TimerTask is launched
+            // and its period is setup to execute in Period
+            // intervals.
         }
 
     }
