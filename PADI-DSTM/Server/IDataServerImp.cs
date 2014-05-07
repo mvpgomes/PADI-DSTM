@@ -115,10 +115,7 @@ namespace DataServer
         public bool PermissionToCreate(int uid)
         {
             bool answerRequest = false;
-            IMasterServer remoteObject;
-            remoteObject = (IMasterServer)Activator.GetObject(
-                typeof(IMasterServer),
-                MASTER_SERVER_ADDRESS);
+            IMasterServer remoteObject = getMasterRemoteInstance();
             answerRequest = remoteObject.ObjectExists(uid);
             return answerRequest;
         }
@@ -129,10 +126,8 @@ namespace DataServer
          **/
         public void NotifyMasterServer(string url, int uid)
         {
-            IMasterServer remoteObject;
-            remoteObject = (IMasterServer)Activator.GetObject(
-                typeof(IMasterServer),
-                MASTER_SERVER_ADDRESS);
+            IMasterServer remoteObject = getMasterRemoteInstance();
+           
             try
             {
                 remoteObject.ObjCreatedSuccess(url, uid);
@@ -166,6 +161,22 @@ namespace DataServer
                 }
                 return true;
             }
+        }
+
+        public IMasterServer getMasterRemoteInstance()
+        {
+            IMasterServer remoteInstance = (IMasterServer)Activator.GetObject(
+                typeof(IDataServer), MASTER_SERVER_ADDRESS);
+
+            return remoteInstance;
+        }
+        
+        public IDataServer getReplicaRemoteInstance(string replicaAddress)
+        {
+            IDataServer remoteInstance = (IDataServer)Activator.GetObject(
+                typeof(IDataServer), replicaAddress);
+
+            return remoteInstance;
         }
 
         /**
@@ -294,12 +305,80 @@ namespace DataServer
             }
         }
 
-        public IDataServer getReplicaRemoteInstance(string replicaAddress)
+        public void RunTimerPrimary()
         {
-            IDataServer remoteInstance = (IDataServer)Activator.GetObject(
-                typeof(IDataServer), replicaAddress);
 
-            return remoteInstance;
+            TimerCallback TimerDelegate = new TimerCallback(PrimaryTimerTask);
+            System.Threading.Timer PrimaryTimerItem = new System.Threading.Timer(TimerDelegate, this, this.period * MILLI, this.period * MILLI);
+            this.PrimaryTimerReference = PrimaryTimerItem;
+
+            while (this.role == PRIMARY_SERVER)
+            {
+                System.Threading.Thread.Sleep(this.period * MILLI);
+            }
+            this.PrimaryTimerCanceled = true;
+
+        }
+
+        public void RunTimerBackup()
+        {
+            TimerCallback TimerDelegate = new TimerCallback(BackupTimerTask);
+            System.Threading.Timer BackupTimerItem = new System.Threading.Timer(TimerDelegate, this, this.period * MILLI, this.period * MILLI);
+            this.BackupTimerReference = BackupTimerItem;
+
+            while (this.role == BACKUP_SERVER)
+            {
+                System.Threading.Thread.Sleep(this.period * MILLI);
+            }
+            this.BackupTimerCanceled = true;
+        }
+
+        public void PrimaryTimerTask(object StateObj)
+        {
+
+            if (this.replicaAddress != null)
+            {
+                IDataServer remoteReplica = getReplicaRemoteInstance(this.replicaAddress);
+                Console.WriteLine("Sending I'm alives to replica ...");
+                remoteReplica.updatePrimaryState(this.primaryIsAlive);
+                Console.WriteLine("Sleeping for " + this.period * MILLI + " seconds");
+            }
+            else
+            {
+                Console.WriteLine("Replica not yet assigned ...");
+            }
+
+            if (this.PrimaryTimerCanceled)
+            {
+                this.PrimaryTimerReference.Dispose();
+                Console.WriteLine("Primary Timer DIsposed ...");
+            }
+        }
+
+        public void BackupTimerTask(object StateObject)
+        {
+            if (!this.primaryIsAlive)
+            {
+                Console.WriteLine("Primary is dead ...");
+                // Needs to assume the role of primary server
+                if (this.primaryAddress != null)
+                {
+                    this.role = PRIMARY_SERVER;
+                    this.BackupTimerReference.Dispose();
+                    RunTimerPrimary();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Primary is alive ...");
+                this.primaryIsAlive = false;
+            }
+
+            if (this.BackupTimerCanceled)
+            {
+                this.BackupTimerReference.Dispose();
+                Console.WriteLine("Backup Timer Disposed ...");
+            }
         }
 
     }

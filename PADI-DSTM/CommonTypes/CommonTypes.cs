@@ -80,6 +80,11 @@ namespace CommonTypes
 
         //Call from coordinator to participant to tell participant to abort its part of a transaction
         void DoAbort(Transaction trans);
+
+        // Replication Methods
+        void updatePrimaryState(bool primaryIsAlive);
+        void assignReplicaServer(string replicaAddress);
+        void assignPrimaryServer(string replicaAddress);
     }
 
     /**
