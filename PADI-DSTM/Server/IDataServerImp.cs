@@ -13,18 +13,33 @@ namespace DataServer
 {
     class IDataServerImp : MarshalByRefObject, IDataServer
     {
+        // COnstants
         private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
+        public static readonly string PRIMARY_SERVER = "Primary";
+        public static readonly string BACKUP_SERVER = "Backup";
+        public static readonly int MILLI = 1000;
+        // Data Structres
+        private Dictionary<int, PadInt> padIntDB;
+        private enum State { Failed, Freezed, Functional }
+        private object waiting = new object();
         // Variables
         private int WorkingThreads;
         private int DataServerState;
         private int dataServerID;
         private string url;
-        // Data Structres
-        private Dictionary<int, PadInt> padIntDB;
-        private enum State { Failed, Freezed, Functional }
-        private object waiting = new object();
-      
-
+        // Replication Variables
+        private string role;
+        private string primaryAddress;
+        private string replicaAddress;
+        private bool primaryIsAlive;
+        // Timer Variables
+        private int period;
+        private int delay;
+        private Timer PrimaryTimerReference;
+        private Timer BackupTimerReference;
+        private bool PrimaryTimerCanceled;
+        private bool BackupTimerCanceled;
+        
 
         public IDataServerImp()
         {
@@ -234,6 +249,9 @@ namespace DataServer
             return answer;
         }
 
+        /**
+         * Transactions  
+         **/
 
         public bool CanCommit(Transaction trans)
         {
@@ -249,5 +267,40 @@ namespace DataServer
         {
             throw new NotImplementedException();
         }
+
+        /**
+         *  Replication
+         **/
+
+        public void updatePrimaryState(bool primaryIsAlive)
+        {
+            this.primaryIsAlive = primaryIsAlive;
+        }
+
+        public void assignReplicaServer(string serverAddress)
+        {
+            if (this.role == PRIMARY_SERVER)
+            {
+                this.replicaAddress = serverAddress;
+            }
+            Console.WriteLine("Replica Assigned !!!");
+        }
+
+        public void assignPrimaryServer(string serverAddress)
+        {
+            if (this.role == BACKUP_SERVER)
+            {
+                this.primaryAddress = serverAddress;
+            }
+        }
+
+        public IDataServer getReplicaRemoteInstance(string replicaAddress)
+        {
+            IDataServer remoteInstance = (IDataServer)Activator.GetObject(
+                typeof(IDataServer), replicaAddress);
+
+            return remoteInstance;
+        }
+
     }
 }
