@@ -72,14 +72,16 @@ namespace MasterServer
         private int dataServerId;
         private static IMasterServerImp instance;
        
-        private Dictionary<int, string> serverAddress;
+        private Dictionary<int, string> primaryServerAddress;
+        private Dictionary<int, string> backupServerAddress;
         private Dictionary<int, string> objectLocation;
         private Dictionary<int, int> storageVector;
 
         private TransactionManager tm;
 
         private IMasterServerImp() {
-            this.serverAddress = new Dictionary<int, string>();
+            this.primaryServerAddress = new Dictionary<int, string>();
+            this.backupServerAddress = new Dictionary<int, string>();
             this.objectLocation = new Dictionary<int,string>();
             this.storageVector = new Dictionary<int, int>();
             this.dataServerId = 0;
@@ -108,7 +110,7 @@ namespace MasterServer
         public int RegisterDataServer(string url)
         {
             int serverId = this.dataServerId;
-            this.serverAddress.Add(serverId, url);
+            this.primaryServerAddress.Add(serverId, url);
             this.storageVector.Add(serverId, 0);
             this.dataServerId++;
             Console.WriteLine("The server hosted at " + url + " was registred with sucess !");
@@ -132,7 +134,7 @@ namespace MasterServer
                     serverID = entry.Key;
                 }
             }
-            return this.serverAddress[serverID];
+            return this.primaryServerAddress[serverID];
         }
 
         /**
@@ -143,7 +145,7 @@ namespace MasterServer
         {
             int serverID = 0;
 
-            foreach (KeyValuePair<int, string> entry in serverAddress)
+            foreach (KeyValuePair<int, string> entry in primaryServerAddress)
             {
                 if (entry.Value == url)
                 {
@@ -199,7 +201,7 @@ namespace MasterServer
             bool answer = false;
             try
             {
-                foreach (string url in this.serverAddress.Values)
+                foreach (string url in this.primaryServerAddress.Values)
                 {
                     IDataServer remoteServer = GetDataServerInstance(url);
                     answer = remoteServer.DumpState();
