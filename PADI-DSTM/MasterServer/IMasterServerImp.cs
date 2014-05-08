@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Remoting;
 using CommonTypes;
+using DataServer;
 
 namespace MasterServer
 {
@@ -74,6 +76,9 @@ namespace MasterServer
 
     class IMasterServerImp : MarshalByRefObject, IMasterServer
     {
+        private static string BACKUP_ROLE = "Backup";
+        private static readonly int PORT_INCREMENT = 1000;
+        
         private int dataServerId;
         private static IMasterServerImp instance;
        
@@ -231,9 +236,33 @@ namespace MasterServer
             return remoteServer;
         }
 
-        /////////////////////
-        //Transaction Stuff//
-        ////////////////////
+        /**
+         * Method that generates a new DataServer Address
+         **/
+        public string GenerateAddress(int port)
+        {
+            int newPort = port + PORT_INCREMENT;
+            return "tcp://" + System.Environment.MachineName + ":" + newPort.ToString() + "/DataServer";
+        }
+
+        /**
+         * Method that creates a DataServer new instance to
+         * be assigned as replica.
+         **/
+        public string CreateDataServerReplica(int primaryID, int primaryPort)
+        {
+            // This method should create another process ?
+
+            //string backupAddress = GenerateAddress(primaryPort);
+            //this.backupServerAddress.Add(primaryID, backupAddress);
+            //IDataServerImp dataServer = new IDataServerImp(primaryID, BACKUP_ROLE, backupAddress);
+            //RemotingServices.Marshal(dataServer, "DataServer", typeof(IDataServerImp));
+            //dataServer.RunTimerBackup();
+            //return backupAddress;
+            return "Hello World !!!";
+        }
+
+         
         public TID OpenTransaction()
         {
             TID tid = TidGenerator.GenerateTID();

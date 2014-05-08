@@ -11,6 +11,7 @@ using CommonTypes;
 
 namespace DataServer
 {
+
     class TransactionSystem
     {
         //At certain point a DataServer 
@@ -50,7 +51,7 @@ namespace DataServer
 
     }
 
-    class IDataServerImp : MarshalByRefObject, IDataServer
+    public class IDataServerImp : MarshalByRefObject, IDataServer
     {
         // COnstants
         private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
@@ -68,7 +69,6 @@ namespace DataServer
         private string url;
         // Replication Variables
         private string role;
-        private string primaryAddress;
         private string replicaAddress;
         private bool primaryIsAlive;
         // Timer Variables
@@ -78,6 +78,7 @@ namespace DataServer
         private Timer BackupTimerReference;
         private bool PrimaryTimerCanceled;
         private bool BackupTimerCanceled;
+
         //Transaction
         private TransactionSystem transactionSys;
 
@@ -88,14 +89,24 @@ namespace DataServer
             this.WorkingThreads = 0;
         }
 
-        public IDataServerImp(int dataServerID, string url)
+        public IDataServerImp(int dataServerID, string role, string url)
         {
             this.padIntDB = new Dictionary<int, PadInt>();
             this.DataServerState = (int)State.Functional;
             this.WorkingThreads = 0;
             this.dataServerID = dataServerID;
+            this.role = role;
             this.url = url;
             this.transactionSys = new TransactionSystem(dataServerID);
+            this.period = 5;
+            this.delay = 3;
+        }
+
+        public string ReplicaAddress 
+        {
+            get { return replicaAddress; }
+            set { replicaAddress = value; } 
+
         }
 
         private void ReplacePadInt(PadInt padInt)
@@ -362,23 +373,6 @@ namespace DataServer
             this.primaryIsAlive = primaryIsAlive;
         }
 
-        public void assignReplicaServer(string serverAddress)
-        {
-            if (this.role == PRIMARY_SERVER)
-            {
-                this.replicaAddress = serverAddress;
-            }
-            Console.WriteLine("Replica Assigned !!!");
-        }
-
-        public void assignPrimaryServer(string serverAddress)
-        {
-            if (this.role == BACKUP_SERVER)
-            {
-                this.primaryAddress = serverAddress;
-            }
-        }
-
         public void RunTimerPrimary()
         {
 
@@ -402,7 +396,7 @@ namespace DataServer
 
             while (this.role == BACKUP_SERVER)
             {
-                System.Threading.Thread.Sleep(this.period * MILLI);
+                System.Threading.Thread.Sleep( (this.period + this.delay) * MILLI);
             }
             this.BackupTimerCanceled = true;
         }
@@ -425,7 +419,7 @@ namespace DataServer
             if (this.PrimaryTimerCanceled)
             {
                 this.PrimaryTimerReference.Dispose();
-                Console.WriteLine("Primary Timer DIsposed ...");
+                Console.WriteLine("Primary Timer Disposed ...");
             }
         }
 
@@ -435,7 +429,7 @@ namespace DataServer
             {
                 Console.WriteLine("Primary is dead ...");
                 // Needs to assume the role of primary server
-                if (this.primaryAddress != null)
+                if (this.replicaAddress != null)
                 {
                     this.role = PRIMARY_SERVER;
                     this.BackupTimerReference.Dispose();

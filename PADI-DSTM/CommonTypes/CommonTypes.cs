@@ -105,8 +105,6 @@ namespace CommonTypes
 
         // Replication Methods
         void updatePrimaryState(bool primaryIsAlive);
-        void assignReplicaServer(string replicaAddress);
-        void assignPrimaryServer(string replicaAddress);
     }
 
     /**
@@ -120,7 +118,7 @@ namespace CommonTypes
         string GetPadIntLocation(int uid);
         int RegisterDataServer(string url);
         bool ShowDataServersState();
-
+        string CreateDataServerReplica(int dataServerID, int port);
         //Master will implement transaction interface
 
         //Start a new transaction and delivers a unique TID trans
@@ -142,12 +140,14 @@ namespace CommonTypes
         //Call from participant to coordinator to ask for the decision on a transaction
         //when it has voted Yes but has still had no reply after some delay
         //Used to recover from server crash or delayed messages
+
         bool GetDecision(TID tid);
 
         //Logs the writeOperation
         void LogWrite(TID tid, PadInt padint);
-    }
 
+       
+    }
 
     //This is a encapsulation of the Transaction Identifier
     [Serializable()]

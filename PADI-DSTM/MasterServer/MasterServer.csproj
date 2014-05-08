@@ -54,6 +54,10 @@
       <Project>{2d67d43c-ba48-4466-85e6-6cc040939a45}</Project>
       <Name>CommonTypes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Server\DataServer.csproj">
+      <Project>{0f0a815c-e24c-40f8-8603-feb726a25711}</Project>
+      <Name>DataServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

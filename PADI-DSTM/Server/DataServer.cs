@@ -11,17 +11,20 @@ using PADI_DSTM;
 
 namespace DataServer
 {
-    class DataServer
+    public class DataServer
     {
+        private static string PRIMARY_ROLE = "Primary";
+
         public static TcpChannel channel;
         private static int dataServerID;
-        static void Main(string[] args){
+
+        public static void Main(string[] args){
 
             //Getting the port number from user
             Console.Write("Run Data Server at port: ");
             string port = Console.ReadLine();
 
-            //Firstly MUST create the channel 
+            //Create the channel 
             try
             {
                 channel = new TcpChannel(Convert.ToInt32(port));
@@ -46,8 +49,6 @@ namespace DataServer
                     PadiDstm.MASTER_SERVER_ADDRESS);
 
                 dataServerID = remoteMaster.RegisterDataServer(dataServerAddr);
-                // must invoke the master server to assign a replica
-                // string replicaAdress = remoteMaster.CreateReplicaDataServer(primary)
             }
             catch (Exception e)
             {
@@ -59,12 +60,36 @@ namespace DataServer
             
             Console.WriteLine("Data Server has registered on Master with id: " + dataServerID);
 
-            //Finally creates the server
-            IDataServerImp dataServer = new IDataServerImp(dataServerID, dataServerAddr);
-          
+            //Creates the server
+            IDataServerImp dataServer = new IDataServerImp(dataServerID, PRIMARY_ROLE, dataServerAddr);
+
+            try
+            {
+                //getting master server proxy  
+                IMasterServer remoteMaster = (IMasterServer)Activator.GetObject(
+                    typeof(IMasterServer),
+                    PadiDstm.MASTER_SERVER_ADDRESS);
+                //creates the replica server
+                Console.WriteLine("Creating the replica ...");
+                string replicaAddr = remoteMaster.CreateDataServerReplica(dataServerID, Convert.ToInt32(port));
+                Console.WriteLine("Replica address " + replicaAddr);
+                dataServer.ReplicaAddress = replicaAddr;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("DataServer Main Exception: " + e.Message);
+                Console.WriteLine("<enter> to exit...");
+                Console.ReadLine();
+                return;
+            }
+
+
             //Registering the service
             RemotingServices.Marshal(dataServer, "DataServer",
                                         typeof(IDataServerImp));
+
+            //Starts to execute the PrimaryTimerTask;
+            dataServer.RunTimerPrimary();
 
             Console.WriteLine("Data Server Running at: " + dataServerAddr);
 
