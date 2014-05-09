@@ -475,6 +475,7 @@ namespace DataServer
                     this.BackupTimerReference.Dispose();
                     IMasterServer remoteMaster = getMasterRemoteInstance();
                     remoteMaster.notifyMasterAboutFailure(this.dataServerID, this.url);
+                    this.primaryIsAlive = true;
                     createReplicaServer(this.dataServerID, DataServer.port);
                     RunTimerPrimary();
                 }

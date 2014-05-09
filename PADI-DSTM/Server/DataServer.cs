@@ -128,8 +128,6 @@ namespace DataServer
                 dataServerID = Convert.ToInt32( args[ID_INDEX] );
             }
 
-            Console.WriteLine(dataServerAddr);
-
             //Creates the server
             IDataServerImp dataServer = new IDataServerImp(dataServerID, role, dataServerAddr);
 

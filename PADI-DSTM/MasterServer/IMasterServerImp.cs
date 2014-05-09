@@ -269,7 +269,6 @@ namespace MasterServer
                 replicaProcess.StartInfo.CreateNoWindow = false;
                 // The parameters are passed as : PORT, ID 
                 string arguments = port.ToString() + " " + primaryID.ToString();
-                Console.WriteLine(arguments);
                 replicaProcess.StartInfo.Arguments = arguments;
                 replicaProcess.Start();
             }
@@ -289,7 +288,7 @@ namespace MasterServer
 
             if (!primaryServerAddress.Equals(address) && backupServerAddress.Equals(address))
             {
-                this.primaryServerAddress.Add(id, backupAddress);
+                this.primaryServerAddress[id]= backupAddress;
                 this.backupServerAddress.Remove(id);
             }
         }
