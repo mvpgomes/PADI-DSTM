@@ -53,6 +53,7 @@ namespace ClientApplicationForm
             else
             {
                 updatePadintStack(res.ToString());
+                cachedObjects.Add(res.uid, res);
             }
         }
 
@@ -90,6 +91,8 @@ namespace ClientApplicationForm
             {
                 updateLog("The PadInt with id " + PadIntID + " does not exist.");
             }
+
+            updatePadintStack(res.ToString());
         }
 
         private void Fail_Click(object sender, EventArgs e)
@@ -220,7 +223,8 @@ namespace ClientApplicationForm
             try
             {
                 PadInt obj = cachedObjects[uid];
-                obj.Write(value);                
+                obj.Write(value);
+                updatePadintStack(obj.ToString());
             }
             catch (Exception) { updateLog("The PadInt with id " + uid + " does not exist."); }
         }

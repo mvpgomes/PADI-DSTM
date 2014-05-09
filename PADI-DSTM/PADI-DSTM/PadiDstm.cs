@@ -52,7 +52,7 @@ namespace PADI_DSTM
             }
             else
             {
-                throw new TxException("The transaction does not exist or was already aborted.");
+                throw new TxException("The transaction does not exist or has already aborted.");
             }
         }
 
@@ -109,13 +109,16 @@ namespace PADI_DSTM
         public static PadInt CreatePadInt(int uid)
         {
             PadInt reference = null;
-
+            Console.WriteLine("trying create a padint");
             try
             {
                 IMasterServer remoteMaster = getMasterInstance();
                 string dataServerAddress = remoteMaster.GetDataServerAddress();
                 Console.WriteLine(dataServerAddress);
-                IDataServer remoteServer = getDataServerInstance(dataServerAddress); 
+                
+                IDataServer remoteServer = (IDataServer)Activator.GetObject(
+                    typeof(IDataServer), dataServerAddress);
+
                 reference = remoteServer.CreateObject(uid);
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); }

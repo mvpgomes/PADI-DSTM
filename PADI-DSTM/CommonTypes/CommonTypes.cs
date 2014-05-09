@@ -143,13 +143,16 @@ namespace CommonTypes
     {
         private TID tid;
         private List<int> partcipants;
-        private Dictionary<int, int> ModifiedObjects;
+
+        private List<PadInt> readSet;
+        private List<PadInt> writeSet;
 
         public Transaction(TID tid)
         {
             this.tid = tid;
-            this.ModifiedObjects = new Dictionary<int, int>();
             partcipants = new List<int>();
+            readSet = new List<PadInt>();
+            writeSet = new List<PadInt>();
         }
 
         public TID GetTID() { return this.tid; }
@@ -159,12 +162,20 @@ namespace CommonTypes
             this.partcipants.Add(participant);
         }
 
-        public void AddModifiedObject(PadInt obj)
+        public void AddReadSet(PadInt padInt)
         {
-            this.ModifiedObjects.Add(obj.uid, obj.value);
+            this.readSet.Add(padInt);
+        }
+        public void AddWriteSet(PadInt padInt)
+        {
+            this.writeSet.Add(padInt);
         }
 
         public List<int> GetParticipants() { return this.partcipants; }
+
+        public List<PadInt> GetReadSet() { return this.readSet; }
+
+        public List<PadInt> GetWriteSet() { return this.writeSet; }
 
         public override string ToString()
         {

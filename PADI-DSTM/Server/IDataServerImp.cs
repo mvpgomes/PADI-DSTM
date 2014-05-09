@@ -42,6 +42,11 @@ namespace DataServer
             this.url = url;
         }
 
+        private void ReplacePadInt(PadInt padInt)
+        {
+            this.padIntDB[padInt.uid].Write(padInt.value);
+        }
+
         /**
          * Method that allows a user to create a new PadInt
          * object in the DataServer;
