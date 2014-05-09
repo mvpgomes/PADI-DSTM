@@ -365,14 +365,41 @@ namespace DataServer
         }
 
         /**
-         *  Replication
+         *   --------------   Replication ----------------
          **/
 
+        public void createReplicaServer(int serverID, string port)
+        {
+            try
+            {
+                IMasterServer remoteMaster = getMasterRemoteInstance();
+                Console.WriteLine("Creating the replica ...");
+                string replicaAddr = remoteMaster.CreateDataServerReplica(serverID, Convert.ToInt32(port));
+                Console.WriteLine("Replica address " + replicaAddr);
+                this.ReplicaAddress = replicaAddr;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("DataServer Main Exception: " + e.Message);
+                Console.WriteLine("<enter> to exit...");
+                Console.ReadLine();
+                return;
+            }
+        }
+
+         /**
+         * Method that is called by the primary server and
+         * updates the state of the primary server at the replica.
+         **/ 
         public void updatePrimaryState(bool primaryIsAlive)
         {
             this.primaryIsAlive = primaryIsAlive;
+            Console.WriteLine("Updating primary state ...");
         }
 
+        /**
+         * Method that runs the primary server TimerTask
+         **/ 
         public void RunTimerPrimary()
         {
 
@@ -388,6 +415,9 @@ namespace DataServer
 
         }
 
+        /**
+        * Method that runs the backup server TimerTask
+        **/ 
         public void RunTimerBackup()
         {
             TimerCallback TimerDelegate = new TimerCallback(BackupTimerTask);
@@ -396,11 +426,16 @@ namespace DataServer
 
             while (this.role == BACKUP_SERVER)
             {
-                System.Threading.Thread.Sleep( (this.period + this.delay) * MILLI);
+                System.Threading.Thread.Sleep( (this.period) * MILLI);
             }
             this.BackupTimerCanceled = true;
         }
 
+
+        /**
+         * Primary server task : this task is responsible to update 
+         * the server state (primaryIsAlive) at the replica server.
+         **/ 
         public void PrimaryTimerTask(object StateObj)
         {
 
@@ -423,16 +458,24 @@ namespace DataServer
             }
         }
 
+        /**
+         * Backup server task : this task is responsible to verify
+         * what is the state of the primary server. If the primary
+         * is dead, the backup server assumes the PRIMARY role.
+         **/
         public void BackupTimerTask(object StateObject)
         {
             if (!this.primaryIsAlive)
             {
                 Console.WriteLine("Primary is dead ...");
                 // Needs to assume the role of primary server
-                if (this.replicaAddress != null)
+                if (this.replicaAddress == null)
                 {
                     this.role = PRIMARY_SERVER;
                     this.BackupTimerReference.Dispose();
+                    IMasterServer remoteMaster = getMasterRemoteInstance();
+                    remoteMaster.notifyMasterAboutFailure(this.dataServerID, this.url);
+                    createReplicaServer(this.dataServerID, DataServer.port);
                     RunTimerPrimary();
                 }
             }

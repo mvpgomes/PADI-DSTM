@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Runtime.Remoting;
 using CommonTypes;
 using DataServer;
+using System.Diagnostics;
+using System.IO;
 
 namespace MasterServer
 {
@@ -76,6 +78,7 @@ namespace MasterServer
 
     class IMasterServerImp : MarshalByRefObject, IMasterServer
     {
+        private static string ServerPath = Directory.GetCurrentDirectory() + "\\Server.exe";
         private static string BACKUP_ROLE = "Backup";
         private static readonly int PORT_INCREMENT = 1000;
         
@@ -251,15 +254,44 @@ namespace MasterServer
          **/
         public string CreateDataServerReplica(int primaryID, int primaryPort)
         {
-            // This method should create another process ?
+        
+            string backupAddress = GenerateAddress(primaryPort);
+            this.backupServerAddress[primaryID] = backupAddress;
 
-            //string backupAddress = GenerateAddress(primaryPort);
-            //this.backupServerAddress.Add(primaryID, backupAddress);
-            //IDataServerImp dataServer = new IDataServerImp(primaryID, BACKUP_ROLE, backupAddress);
-            //RemotingServices.Marshal(dataServer, "DataServer", typeof(IDataServerImp));
-            //dataServer.RunTimerBackup();
-            //return backupAddress;
-            return "Hello World !!!";
+            int port = primaryPort + 1000;
+
+            Process replicaProcess = new Process();
+
+            try
+            {
+                replicaProcess.StartInfo.UseShellExecute = true;
+                replicaProcess.StartInfo.FileName = ServerPath;
+                replicaProcess.StartInfo.CreateNoWindow = false;
+                // The parameters are passed as : PORT, ID 
+                string arguments = port.ToString() + " " + primaryID.ToString();
+                Console.WriteLine(arguments);
+                replicaProcess.StartInfo.Arguments = arguments;
+                replicaProcess.Start();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return backupAddress;
+        }
+
+
+        public void notifyMasterAboutFailure(int id, string address)
+        {
+            string primaryAddress = this.primaryServerAddress[id];
+            string backupAddress = this.backupServerAddress[id];
+
+            if (!primaryServerAddress.Equals(address) && backupServerAddress.Equals(address))
+            {
+                this.primaryServerAddress.Add(id, backupAddress);
+                this.backupServerAddress.Remove(id);
+            }
         }
 
          

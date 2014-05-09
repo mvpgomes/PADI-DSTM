@@ -119,6 +119,7 @@ namespace CommonTypes
         int RegisterDataServer(string url);
         bool ShowDataServersState();
         string CreateDataServerReplica(int dataServerID, int port);
+        void notifyMasterAboutFailure(int id, string address);
         //Master will implement transaction interface
 
         //Start a new transaction and delivers a unique TID trans
