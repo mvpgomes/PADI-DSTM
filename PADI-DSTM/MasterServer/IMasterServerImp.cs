@@ -11,7 +11,9 @@ using System.IO;
 
 namespace MasterServer
 {
-   
+   /// <summary>
+   /// TidGenerator
+   /// </summary>
     class TidGenerator
     {
         static private int count = 0;
@@ -22,6 +24,9 @@ namespace MasterServer
         }
     }
 
+    /// <summary>
+    /// TransactionManager
+    /// </summary>
     class TransactionManager
     {
         private Dictionary<TID, Transaction> trans;
@@ -75,7 +80,9 @@ namespace MasterServer
 
     }
 
-
+    /// <summary>
+    /// Specification in CommonTypes
+    /// </summary>
     class IMasterServerImp : MarshalByRefObject, IMasterServer
     {
         private static string ServerPath = Directory.GetCurrentDirectory() + "\\Server.exe";

@@ -10,20 +10,32 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 namespace PADI_DSTM
 {
-
+    /// <summary>
+    /// PadiDstm
+    /// </summary>
     public class PadiDstm
     {
+        /*
+         * PadiDstm variables
+         */ 
         public static readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
         private static TcpChannel channel;
         private static IMasterServer remoteMaster;
         private static TID currentTx;
         private static Dictionary<int, PadInt> accessedPadInts;
        
+        /*
+         * PadiDstm constructor.
+         */ 
         static PadiDstm() 
         {
             accessedPadInts = new Dictionary<int, PadInt>();
         }
-
+        /*
+         * PadiDstm - Init.
+         * this method is called only once by the application and initializes the PADI-DSTM library.
+         * @return bool.
+         */
         public static bool Init()
         {
             channel = new TcpChannel();
@@ -31,7 +43,14 @@ namespace PADI_DSTM
             currentTx = null;
             return true;
         }
-
+        /*
+         * PadiDstm - TxBegin.
+         * this method starts a new transaction and returns a boolean value in-
+         * dicating whether the operation succeeded. This method may throw a TxException. A
+         * TxException should include a string indicating what caused the exception.
+         * @return bool.
+         * @throw TxException.
+         */
         public static bool TxBegin()
         {
             remoteMaster = getMasterInstance();
@@ -45,7 +64,10 @@ namespace PADI_DSTM
                 throw new TxException("The transaction is already opened.");
             }
         }
-
+        /*
+         * PadiDstm - sendDirtyPadints.
+         * Sends PadInt that were modified.
+         */
         private static void sendDirtyPadints()
         {
             foreach ( KeyValuePair<int, PadInt> padInt in accessedPadInts)
@@ -56,7 +78,14 @@ namespace PADI_DSTM
                 }
             }
         }
-
+        /*
+         * PadiDstm - TxCommit.
+         * this method attempts to commit the current transaction and returns
+         * a boolean value indicating whether the operation succeded. This method may throw a
+         * TxException.
+         * @return bool.
+         * @throw TxException.
+         */
         public static bool TxCommit()
         {
             remoteMaster = getMasterInstance();
@@ -72,22 +101,24 @@ namespace PADI_DSTM
                 throw new TxException("The transaction does not exist or has already aborted.");
             }
         }
-
         /**
+         * PadiDstm - Status 
          * Method that makes all nodes in the system dump to their output
          * their current state.
-         **/ 
+         * @return bool.
+         **/
         public static bool Status()
         {
             IMasterServer remoteMaster = getMasterInstance();
             bool answer = remoteMaster.ShowDataServersState();
             return answer;
         }
-
         /**
+         * PadiDstm - Fail 
          * Method that makes the serfver at the URL stop responding to external
          * calls wxcept for a Recover call.
-         **/ 
+         * @return bool.
+         */
         public static bool Fail(string URL)
         {
             IDataServer remoteServer = getDataServerInstance(URL);
