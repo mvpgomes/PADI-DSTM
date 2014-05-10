@@ -317,6 +317,25 @@ namespace DataServer
          *   --------------   Replication ----------------
          **/
 
+       /**
+        * Populate the replica when it is created 
+        **/
+        public void PopulateReplica(Dictionary<int, PadIntServer> primaryDataBase)
+        {
+            foreach (KeyValuePair<int, PadIntServer> key in primaryDataBase)
+            {
+                this.padIntDB.Add(key.Key, key.Value);
+            }
+        }
+
+       /**
+        * Update the PadInt after a write operation is performed
+        **/
+        public void updatePadInt(int id, int value)
+        {
+            this.padIntDB[id].SetValue(value);
+        }
+
         public void createReplicaServer(int serverID, string port)
         {
             try
