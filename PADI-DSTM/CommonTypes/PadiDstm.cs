@@ -3,28 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommonTypes;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
-using CommonTypes;
 using CustomExceptions;
 
 namespace CommonTypes
 {
-
+    /// <summary>
+    /// PadiDstm
+    /// </summary>
     public class PadiDstm
     {
+        /*
+         * PadiDstm variables
+         */ 
         public static readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
         private static TcpChannel channel;
         private static IMasterServer remoteMaster;
         private static TID currentTx;
-        private static Dictionary<int, PadInt> acessedPadInts;
+        private static Dictionary<int, PadInt> accessedPadInts;
        
+        /*
+         * PadiDstm constructor.
+         */ 
         static PadiDstm() 
         {
-            acessedPadInts = new Dictionary<int, PadInt>();
+            accessedPadInts = new Dictionary<int, PadInt>();
         }
-
+        /*
+         * PadiDstm - Init.
+         * this method is called only once by the application and initializes the PADI-DSTM library.
+         * @return bool.
+         */
         public static bool Init()
         {
             channel = new TcpChannel();
@@ -32,7 +44,14 @@ namespace CommonTypes
             currentTx = null;
             return true;
         }
-
+        /*
+         * PadiDstm - TxBegin.
+         * this method starts a new transaction and returns a boolean value in-
+         * dicating whether the operation succeeded. This method may throw a TxException. A
+         * TxException should include a string indicating what caused the exception.
+         * @return bool.
+         * @throw TxException.
+         */
         public static bool TxBegin()
         {
             remoteMaster = getMasterInstance();
@@ -46,12 +65,34 @@ namespace CommonTypes
                 throw new TxException("The transaction is already opened.");
             }
         }
-
+        /*
+         * PadiDstm - sendDirtyPadints.
+         * Sends PadInt that were modified.
+         */
+        private static void sendDirtyPadints()
+        {
+            foreach ( KeyValuePair<int, PadInt> padInt in accessedPadInts)
+            {
+                if (padInt.Value.wasRead() || padInt.Value.wasWrite())
+                {
+                    getMasterInstance().AddToTransaction(padInt.Value.getUID(), padInt.Value.wasWrite(), padInt.Value.Read(), currentTx);
+                }
+            }
+        }
+        /*
+         * PadiDstm - TxCommit.
+         * this method attempts to commit the current transaction and returns
+         * a boolean value indicating whether the operation succeded. This method may throw a
+         * TxException.
+         * @return bool.
+         * @throw TxException.
+         */
         public static bool TxCommit()
         {
             remoteMaster = getMasterInstance();
             if (currentTx != null)
             {
+                sendDirtyPadints();
                 remoteMaster.CloseTransaction(currentTx);
                 currentTx = null;
                 return true;
@@ -61,22 +102,24 @@ namespace CommonTypes
                 throw new TxException("The transaction does not exist or has already aborted.");
             }
         }
-
         /**
+         * PadiDstm - Status 
          * Method that makes all nodes in the system dump to their output
          * their current state.
-         **/ 
+         * @return bool.
+         **/
         public static bool Status()
         {
             IMasterServer remoteMaster = getMasterInstance();
             bool answer = remoteMaster.ShowDataServersState();
             return answer;
         }
-
         /**
+         * PadiDstm - Fail 
          * Method that makes the serfver at the URL stop responding to external
          * calls wxcept for a Recover call.
-         **/ 
+         * @return bool.
+         */
         public static bool Fail(string URL)
         {
             IDataServer remoteServer = getDataServerInstance(URL);
@@ -129,7 +172,7 @@ namespace CommonTypes
             catch (Exception ex) { Console.WriteLine(ex.Message); }
             //crete a local padint
             PadInt padint = new PadInt(uid);
-            acessedPadInts.Add(uid, padint);
+            accessedPadInts.Add(uid, padint);
 
             return padint;
         }
@@ -149,9 +192,9 @@ namespace CommonTypes
             PadIntServer padIntServer = null;
 
             //Have already acessed?
-            if (acessedPadInts.ContainsKey(uid))
+            if (accessedPadInts.ContainsKey(uid))
             {
-                padInt = acessedPadInts[uid];
+                padInt = accessedPadInts[uid];
             }
             else
             {
@@ -164,6 +207,7 @@ namespace CommonTypes
                     padIntServer = remoteServer.AccessObject(uid);
                     //Do the conversion
                     padInt = convertPadInt(padIntServer);
+                    accessedPadInts.Add(padInt.getUID(), padInt);
                 }
                 catch (Exception) { return null; }
             }

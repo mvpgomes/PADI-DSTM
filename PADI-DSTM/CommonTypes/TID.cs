@@ -6,51 +6,61 @@ using System.Threading.Tasks;
 
 namespace CommonTypes
 {
-    //This is a encapsulation of the Transaction Identifier
+    /// <summary>
+    /// TID - This is a encapsulation of the Transaction Identifier.
+    /// 
+    /// </summary>
     [Serializable()]
     public class TID : IEquatable<TID>
     {
+        /**
+         * TID variables.
+         */
         private int id;
         /**
-         * Operations made by client 
+         *  TID constructor
+         *  @param id - int that represents transaction id.
          */
-        private List<PadInt> operations;
-
         public TID(int id)
         {
             this.id = id;
-            this.operations = new List<PadInt>();
         }
-
+        /**
+         *  TID - GetID
+         *  @return transaction id.
+         */
         public int GetID() { return this.id; }
-
-        public void addOperations(List<PadInt> listOfOperations)
-        {
-            this.operations.AddRange(listOfOperations);
-        }
-
+        /**
+         *  TID - ToString
+         *  @return string - transaction content.
+         */
         public override string ToString()
         {
             return "TID value: " + this.id.ToString();
         }
-        //Comparator for lists
+        /**
+         *  TID - Equals
+         *  Comparator for lists.
+         *  @return bool - equals?.
+         */
         public override bool Equals(object obj)
         {
-            // If parameter is null return false.
             if (obj == null)
             {
                 return false;
             }
-            // If parameter cannot be cast to TID return false.
             TID tid = obj as TID;
             if ((System.Object)tid == null)
             {
                 return false;
             }
-            // Return true if the fields match:
             return tid.GetID() == this.id;
         }
-
+        /**
+         *  TID - Equals
+         *  Comparator for transactions identifier.
+         *  @return bool - equals?.
+         */
         public bool Equals(TID other)
         {
             if (other == null) return false;
@@ -62,5 +72,4 @@ namespace CommonTypes
             return this.id;
         }
     }
-
 }

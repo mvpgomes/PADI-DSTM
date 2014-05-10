@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterServer", "MasterServer\MasterServer.csproj", "{23D47FAA-236A-4EE7-95BA-811385957F73}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServer", "Server\DataServer.csproj", "{0F0A815C-E24C-40F8-8603-FEB726A25711}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonTypes", "CommonTypes\CommonTypes.csproj", "{2D67D43C-BA48-4466-85E6-6CC040939A45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PADI-DSTM", "PADI-DSTM\PADI-DSTM.csproj", "{966E92BE-9872-43F0-897E-4152D7B562D1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientApplication", "ClientApplicationForm\ClientApplication.csproj", "{84F63661-FBAA-416D-8E6A-2852E80F67FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomExceptions", "CustomExceptions\CustomExceptions.csproj", "{BCA6E880-4753-4A05-BB60-EC1695D26CD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,14 +31,14 @@ Global
 		{2D67D43C-BA48-4466-85E6-6CC040939A45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D67D43C-BA48-4466-85E6-6CC040939A45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D67D43C-BA48-4466-85E6-6CC040939A45}.Release|Any CPU.Build.0 = Release|Any CPU
-		{966E92BE-9872-43F0-897E-4152D7B562D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{966E92BE-9872-43F0-897E-4152D7B562D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{966E92BE-9872-43F0-897E-4152D7B562D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{966E92BE-9872-43F0-897E-4152D7B562D1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{84F63661-FBAA-416D-8E6A-2852E80F67FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{84F63661-FBAA-416D-8E6A-2852E80F67FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{84F63661-FBAA-416D-8E6A-2852E80F67FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{84F63661-FBAA-416D-8E6A-2852E80F67FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCA6E880-4753-4A05-BB60-EC1695D26CD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCA6E880-4753-4A05-BB60-EC1695D26CD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCA6E880-4753-4A05-BB60-EC1695D26CD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCA6E880-4753-4A05-BB60-EC1695D26CD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

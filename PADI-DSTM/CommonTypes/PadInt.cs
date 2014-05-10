@@ -6,18 +6,24 @@ using System.Threading.Tasks;
 
 namespace CommonTypes
 {
-    /**
-    * Class that represents a PadInt object that is shared between the distributed system.
-    **/
+    /// <summary>
+    /// PadInt - Class that represents a PadInt object that is shared between the distributed system.
+    /// 
+    /// </summary>
     [Serializable()]
-    public class PadInt
+    public class PadInt : MarshalByRefObject
     {
+        /**
+         *  PadInt variables.
+         */
         private int uid;
         private int value;
         private bool read;
         private bool write;
-
-
+        /**
+         *  PadInt constructor.
+         *  @param uid - int that represents PadInt UID.
+         */
         public PadInt(int uid)
         {
             this.uid = uid;
@@ -25,7 +31,11 @@ namespace CommonTypes
             this.read = false;
             this.write = false;
         }
-
+        /**
+         *  PadInt constructor.
+         *  @param uid - int that represents PadInt UID.
+         *  ~@param value - int that represents PadInt value.
+         */
         public PadInt(int uid, int value)
         {
             this.uid = uid;
@@ -33,43 +43,54 @@ namespace CommonTypes
             this.read = false;
             this.write = false;
         }
-
-        public bool isRead()
+        /**
+         *  PadInt - wasRead - Method to know if the PadInt was read.
+         *  @return bool.
+         */
+        public bool wasRead()
         {
             return read;
         }
-
-        public bool isWrite()
+        /**
+         *  PadInt - wasWrite - Method to know if the PadInt was wrote.
+         *  @return bool.
+         */
+        public bool wasWrite()
         {
             return write;
         }
-
+        /**
+         *  PadInt - getUID - Method to get the UID from the padInt.
+         *  @return an int that represents de PadInt UID.
+         */
         public int getUID()
         {
             return this.uid;
         }
-
         /**
-         *  Method that reads the object PadInt, and return the value of the object.
+         *  PadInt - Read - Method that reads the object PadInt, and return the value of the object.
          *  @throws TxException
-         **/
+         *  @return int that represents PadInt value.
+         */
         public int Read()
         {
             this.read = true;
             return this.value;
         }
-
         /**
-         * Method that writes a value in a PadInt object.
-         * @throws TxException
-         **/
+         *  PadInt - Write - Method that writes a value in a PadInt object.
+         *  @param value - write value into PadInt
+         *  @throws TxException
+         */
         public void Write(int value)
         {
             this.write = true;
-            //local changes
             this.value = value;
         }
-
+        /**
+         *  PadInt - ToString - ToString the padInt content.
+         *  @return string 
+         */
         public override string ToString()
         {
             return "uid: " + this.uid + " val: " + this.value;
