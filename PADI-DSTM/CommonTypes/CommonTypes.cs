@@ -73,6 +73,22 @@ namespace CommonTypes
          *  @param primaryIsAlive - boolean
          */
         void updatePrimaryState(bool primaryIsAlive);
+
+        /**
+         * IDataServer - updatePadInt 
+         * Replication Methods
+         * @param id - integer
+         * @param value - integer
+         **/
+        void UpdatePadInt(int id, int value);
+
+         /**
+         * IDataServer - PopulateReplica 
+         * Replication Methods
+         * @param primaryDataBase - Dictionary
+         **/
+        void PopulateReplica(Dictionary<int, PadIntServer> primaryDataBase);
+
     }
 
     /// <summary>
