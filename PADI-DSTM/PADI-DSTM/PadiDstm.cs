@@ -10,12 +10,13 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 namespace PADI_DSTM
 {
+
     public class PadiDstm
     {
         public static readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
         private static TcpChannel channel;
         private static IMasterServer remoteMaster;
-        private static Transaction CurrentTx;
+        private static TID currentTx;
        
         static PadiDstm() { }
 
@@ -23,16 +24,16 @@ namespace PADI_DSTM
         {
             channel = new TcpChannel();
             ChannelServices.RegisterChannel(channel, false);
-            CurrentTx = null;
+            currentTx = null;
             return true;
         }
 
         public static bool TxBegin()
         {
             remoteMaster = getMasterInstance();
-            if (CurrentTx == null)
+            if (currentTx == null)
             {
-                CurrentTx = remoteMaster.OpenTransaction();
+                currentTx = remoteMaster.OpenTransaction();
                 return true;
             }
             else
@@ -44,10 +45,10 @@ namespace PADI_DSTM
         public static bool TxCommit()
         {
             remoteMaster = getMasterInstance();
-            if (CurrentTx != null)
+            if (currentTx != null)
             {
-                remoteMaster.CloseTransaction(CurrentTx);
-                CurrentTx = null;
+                remoteMaster.CloseTransaction(currentTx);
+                currentTx = null;
                 return true;
             }
             else
@@ -119,7 +120,7 @@ namespace PADI_DSTM
                 IDataServer remoteServer = (IDataServer)Activator.GetObject(
                     typeof(IDataServer), dataServerAddress);
 
-                reference = remoteServer.CreateObject(uid);
+                reference = remoteServer.CreateObject(uid, currentTx);
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); }
 

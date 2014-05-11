@@ -11,6 +11,45 @@ using CommonTypes;
 
 namespace DataServer
 {
+    class TransactionSystem
+    {
+        //At certain point a DataServer 
+        //may join on several transactions
+        private List<TID> joined;
+        private int participant;
+
+        public TransactionSystem(int participant) 
+        {
+            this.joined = new List<TID>();
+            this.participant = participant;
+        }
+
+        public void JoinTransaction(TID tid, IMasterServer master)
+        {
+            if(!HasJoined(tid)) {
+                //join in master
+                master.Join(tid, participant);
+                this.joined.Add(tid);
+            }
+        }
+
+        public bool HasJoined(TID tid) 
+        { 
+            return this.joined.Contains(tid); 
+        }
+        //test
+        public void WriteValue(TID tid, PadInt padint, IMasterServer master)
+        {
+            master.LogWrite(tid, padint);
+        }
+
+        public void CloseTransaction(TID tid)
+        {
+            this.joined.Remove(tid);
+        }
+
+    }
+
     class IDataServerImp : MarshalByRefObject, IDataServer
     {
         // COnstants
@@ -39,7 +78,8 @@ namespace DataServer
         private Timer BackupTimerReference;
         private bool PrimaryTimerCanceled;
         private bool BackupTimerCanceled;
-        
+        //Transaction
+        private TransactionSystem transactionSys;
 
         public IDataServerImp()
         {
@@ -55,6 +95,7 @@ namespace DataServer
             this.WorkingThreads = 0;
             this.dataServerID = dataServerID;
             this.url = url;
+            this.transactionSys = new TransactionSystem(dataServerID);
         }
 
         private void ReplacePadInt(PadInt padInt)
@@ -62,11 +103,18 @@ namespace DataServer
             this.padIntDB[padInt.uid].Write(padInt.value);
         }
 
+        private bool hasPadInt(int uid)
+        {
+            return this.padIntDB.ContainsKey(uid);
+        }
+
+
+
         /**
          * Method that allows a user to create a new PadInt
          * object in the DataServer;
          **/
-        public PadInt CreateObject(int uid)
+        public PadInt CreateObject(int uid, TID tid)
         {
             lock (this.waiting)
             {
@@ -78,9 +126,11 @@ namespace DataServer
                 }
                 if (!PermissionToCreate(uid))
                 {
-                    PadInt padIntObject = new PadInt(uid);
+                    PadInt padIntObject = new PadInt(uid, this.url, tid);
                     this.padIntDB.Add(uid, padIntObject);
                     NotifyMasterServer(this.url, uid);
+                    //join in the transaciton
+                    this.transactionSys.JoinTransaction(tid, this.getMasterRemoteInstance());
                     Console.WriteLine("Object with id " + uid + " created with sucess"); ;
                     return padIntObject;
                 }
@@ -103,8 +153,15 @@ namespace DataServer
                     this.WorkingThreads++;
                     Monitor.Wait(this.waiting);
                 }
-
-                return this.padIntDB[uid];
+                
+                PadInt padint = this.padIntDB[uid];
+                
+                if (padint != null)
+                {
+                    this.transactionSys.JoinTransaction(padint.GetTID(), this.getMasterRemoteInstance());
+                }
+                
+                return padint;
             }
         }
 
@@ -264,14 +321,31 @@ namespace DataServer
          * Transactions  
          **/
 
+        public void WriteLog(PadInt padint)
+        {
+            this.transactionSys.WriteValue(padint.GetTID(), padint, getMasterRemoteInstance());
+        }
+
         public bool CanCommit(Transaction trans)
         {
-            throw new NotImplementedException();
+            bool valid = true;
+
+            //for(int Ti = startTn+1; Ti <= finishTn; Ti++)
+            // if(read set of Tv intersects write set of Ti) valid = false
+
+            return valid;
         }
 
         public void DoCommit(Transaction trans)
         {
-            throw new NotImplementedException();
+            //do changes
+            foreach (PadInt padInt in trans.GetWriteSet())
+            {
+                if (this.hasPadInt(padInt.uid))
+                {
+                    this.ReplacePadInt(padInt);
+                }
+            }
         }
 
         public void DoAbort(Transaction trans)

@@ -41,6 +41,11 @@ namespace MasterServer
             return res;
         }
 
+        public void RemoveTransaction(Transaction trans)
+        {
+            this.trans.Remove(trans.GetTID());
+        }
+
         public Transaction GetTransaction(TID tid)
         {
             Transaction t = null;
@@ -224,46 +229,67 @@ namespace MasterServer
             return remoteServer;
         }
 
-
-        public Transaction OpenTransaction()
+        /////////////////////
+        //Transaction Stuff//
+        ////////////////////
+        public TID OpenTransaction()
         {
             TID tid = TidGenerator.GenerateTID();
             Transaction trans = new Transaction(tid);
             tm.AddTransaction(trans);
-            return trans;
+            //tid encapsulates the information about a transaction
+            return tid;
         }
 
-        public bool CloseTransaction(Transaction trans)
+        public bool CloseTransaction(TID tid)
         {
+            Transaction trans = tm.GetTransaction(tid);
+
             foreach (int participant in trans.GetParticipants())
             {
+                IDataServer dataServer = this.GetDataServerInstance(this.GetPadIntLocation(participant));
                 //ask for vote
+                if (dataServer.CanCommit(trans))
+                {
+                    dataServer.DoCommit(trans);
+                    tm.RemoveTransaction(trans);                    
+                }
             }
             
             return true;
         }
 
-        public void AbortTransaction(Transaction trans)
+        public void AbortTransaction(TID tid)
         {
-            foreach (int participant in trans.GetParticipants())
+           
+        }
+
+        public void Join(TID tid, int participant)
+        {
+            Transaction trans = this.tm.GetTransaction(tid);
+            if (trans != null)
             {
-
-            }
+                trans.AddParticipant(participant);
+            }            
         }
 
-        public void Join(Transaction trans, int participant)
-        {
-            trans.AddParticipant(participant);
-        }
-
-        public void HaveCommitted(Transaction trans, int participant)
+        public void HaveCommitted(TID tid, int participant)
         {
 
         }   
 
-        public bool GetDecision(Transaction trans)
+        public bool GetDecision(TID tid)
         {
             return true;
+        }
+
+        public void LogWrite(TID tid, PadInt padint)
+        {
+            Transaction tran = this.tm.GetTransaction(tid);
+
+            tran.AddWriteSet(padint);
+
+            Console.WriteLine(tran.ToString());
         }
     }
 }

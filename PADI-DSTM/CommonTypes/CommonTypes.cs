@@ -28,10 +28,15 @@ namespace CommonTypes
         public int uid;
         public int value;
 
-        public PadInt(int uid)
+        private string proxy;
+        private TID tid;
+
+        public PadInt(int uid, string proxy, TID tid)
         {
             this.uid = uid;
             this.value = 0;
+            this.proxy = proxy;
+            this.tid = tid;
         }
 
         /**
@@ -43,18 +48,33 @@ namespace CommonTypes
             return this.value;
         }
 
+        private IDataServer getInstance()
+        {
+            return (IDataServer)Activator.GetObject(
+                typeof(IDataServer), this.proxy);
+        }
+
         /**
          * Method that writes a value in a PadInt object.
          * @throws TxException
          **/
         public void Write(int value)
         {
+            //local changes
             this.value = value;
+            //logging remote changes
+            this.getInstance().WriteLog(this);
+
         }
 
         public override string ToString()
         {
             return "uid: " + this.uid + " val: " + this.value;
+        }
+
+        public TID GetTID()
+        {
+            return this.tid;
         }
     }
 
@@ -63,12 +83,14 @@ namespace CommonTypes
      **/
     public interface IDataServer
     {
-        PadInt CreateObject(int uid);
+        PadInt CreateObject(int uid, TID tid);
         PadInt AccessObject(int uid);
         bool Disconnect();
         bool DumpState();
         bool FreezeDataServer();
         bool RecoverDataServer();
+
+        void WriteLog(PadInt padint);
 
         //Data Servers will implement participant's transaction interface
         //Call from coordinator to participant to ask whether it can commit a transaction
@@ -102,32 +124,34 @@ namespace CommonTypes
         //Master will implement transaction interface
 
         //Start a new transaction and delivers a unique TID trans
-        Transaction OpenTransaction();
+        TID OpenTransaction();
 
         //Ends a transaction: (true) a commit return value indicates that the transaction has committed
         //(false) an abort return value indicates that it has aborted
-        bool CloseTransaction(Transaction trans);
+        bool CloseTransaction(TID tid);
 
         //Aborts the transaction
-        void AbortTransaction(Transaction trans);
+        void AbortTransaction(TID tid);
 
         //Informs a coordinator that a new participant has joined the transaction trans
-        void Join(Transaction trans, int participant);
+        void Join(TID trans, int participant);
 
         //Call from participant to coordinator to confirm that it has committed the transaction
-        void HaveCommitted(Transaction trans, int participant);
+        void HaveCommitted(TID tid, int participant);
 
         //Call from participant to coordinator to ask for the decision on a transaction
         //when it has voted Yes but has still had no reply after some delay
         //Used to recover from server crash or delayed messages
-        bool GetDecision(Transaction trans);
+        bool GetDecision(TID tid);
 
+        //Logs the writeOperation
+        void LogWrite(TID tid, PadInt padint);
     }
 
 
     //This is a encapsulation of the Transaction Identifier
     [Serializable()]
-    public class TID
+    public class TID : IEquatable<TID>
     {
         private int id;
 
@@ -138,6 +162,34 @@ namespace CommonTypes
         public override string ToString()
         {
             return "TID value: " + this.id.ToString();
+        }
+        //Comparator for lists
+        public override bool Equals(object obj)
+        {
+            // If parameter is null return false.
+            if (obj == null)
+            {
+                return false;
+            }
+            // If parameter cannot be cast to TID return false.
+            TID tid = obj as TID;
+            if ((System.Object)tid == null)
+            {
+                return false;
+            }
+            // Return true if the fields match:
+            return tid.GetID() == this.id;
+        }
+
+        public bool Equals(TID other)
+        {
+            if (other == null) return false;
+            return (this.id.Equals(other.GetID()));
+        }
+
+        public override int GetHashCode()
+        {
+            return this.id;
         }
     }
 
