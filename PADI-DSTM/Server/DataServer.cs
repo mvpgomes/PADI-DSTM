@@ -45,7 +45,9 @@ namespace DataServer
                     typeof(IMasterServer),
                     PadiDstm.MASTER_SERVER_ADDRESS);
 
-                dataServerID = remoteMaster.RegisterDataServer(dataServerAddr);    
+                dataServerID = remoteMaster.RegisterDataServer(dataServerAddr);
+                // must invoke the master server to assign a replica
+                // string replicaAdress = remoteMaster.CreateReplicaDataServer(primary)
             }
             catch (Exception e)
             {
