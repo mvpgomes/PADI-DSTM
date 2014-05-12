@@ -280,6 +280,13 @@ namespace MasterServer
             return backupAddress;
         }
 
+        //AddToTransaction(padint.getUID(), padint.wasWrite(), padint.Read(), currentTx);
+        public void AddToTransaction(int UID, bool wasWrite, int value, TID currentTx)
+        {
+            Transaction transaction = tm.GetTransaction(currentTx);
+            TranscationPadInt transPadInt = new TranscationPadInt(UID, wasWrite, value);
+            transaction.addOperations(transPadInt);
+        }
 
         public void notifyMasterAboutFailure(int id, string address)
         {
@@ -307,6 +314,16 @@ namespace MasterServer
         {
             Transaction trans = tm.GetTransaction(tid);
 
+            foreach (TranscationPadInt transPadInt in trans.GetWritePadInts())
+            {
+                IDataServer dataServer = this.GetDataServerInstance(this.GetPadIntLocation(transPadInt._UID));
+                dataServer.DoCommit(transPadInt);
+            }
+
+            //Vamos percorrer os PadInts de cada transaction
+
+            //
+            /*
             foreach (int participant in trans.GetParticipants())
             {
                 IDataServer dataServer = this.GetDataServerInstance(this.GetPadIntLocation(participant));
@@ -316,7 +333,7 @@ namespace MasterServer
                     dataServer.DoCommit(trans);
                     tm.RemoveTransaction(trans);                    
                 }
-            }
+            } */
             
             return true;
         }
@@ -343,15 +360,6 @@ namespace MasterServer
         public bool GetDecision(TID tid)
         {
             return true;
-        }
-
-        public void LogWrite(TID tid, PadInt padint)
-        {
-            Transaction tran = this.tm.GetTransaction(tid);
-
-            tran.AddWriteSet(padint);
-
-            Console.WriteLine(tran.ToString());
         }
     }
 }

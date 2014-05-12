@@ -17,11 +17,11 @@ namespace PADI_DSTM
         private static TcpChannel channel;
         private static IMasterServer remoteMaster;
         private static TID currentTx;
-        private static Dictionary<int, PadInt> acessedPadInts;
+        private static Dictionary<int, PadInt> accessedPadInts;
        
         static PadiDstm() 
         {
-            acessedPadInts = new Dictionary<int, PadInt>();
+            accessedPadInts = new Dictionary<int, PadInt>();
         }
 
         public static bool Init()
@@ -46,11 +46,23 @@ namespace PADI_DSTM
             }
         }
 
+        private static void sendDirtyPadints()
+        {
+            foreach ( KeyValuePair<int, PadInt> padInt in accessedPadInts)
+            {
+                if (padInt.Value.wasRead() || padInt.Value.wasWrite())
+                {
+                    getMasterInstance().AddToTransaction(padInt.Value.getUID(), padInt.Value.wasWrite(), padInt.Value.Read(), currentTx);
+                }
+            }
+        }
+
         public static bool TxCommit()
         {
             remoteMaster = getMasterInstance();
             if (currentTx != null)
             {
+                sendDirtyPadints();
                 remoteMaster.CloseTransaction(currentTx);
                 currentTx = null;
                 return true;
@@ -128,7 +140,7 @@ namespace PADI_DSTM
             catch (Exception ex) { Console.WriteLine(ex.Message); }
             //crete a local padint
             PadInt padint = new PadInt(uid);
-            acessedPadInts.Add(uid, padint);
+            accessedPadInts.Add(uid, padint);
 
             return padint;
         }
@@ -148,9 +160,9 @@ namespace PADI_DSTM
             PadIntServer padIntServer = null;
 
             //Have already acessed?
-            if (acessedPadInts.ContainsKey(uid))
+            if (accessedPadInts.ContainsKey(uid))
             {
-                padInt = acessedPadInts[uid];
+                padInt = accessedPadInts[uid];
             }
             else
             {
@@ -163,6 +175,7 @@ namespace PADI_DSTM
                     padIntServer = remoteServer.AccessObject(uid);
                     //Do the conversion
                     padInt = convertPadInt(padIntServer);
+                    accessedPadInts.Add(padInt.getUID(), padInt);
                 }
                 catch (Exception) { return null; }
             }

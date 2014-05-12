@@ -161,14 +161,7 @@ namespace DataServer
                     Monitor.Wait(this.waiting);
                 }
                 
-                PadIntServer padint = this.padIntDB[uid];
-                
-                if (padint != null)
-                {
-                    //this.transactionSys.JoinTransaction(padint.GetTID(), this.getMasterRemoteInstance());
-                }
-                
-                return padint;
+                return this.padIntDB[uid];
             }
         }
 
@@ -338,9 +331,10 @@ namespace DataServer
             return valid;
         }
 
-        public void DoCommit(Transaction trans)
+        public void DoCommit(TranscationPadInt transPadInt)
         {
             //do changes
+            this.padIntDB[transPadInt._UID].SetValue(transPadInt._value);
         }
 
         public void DoAbort(Transaction trans)

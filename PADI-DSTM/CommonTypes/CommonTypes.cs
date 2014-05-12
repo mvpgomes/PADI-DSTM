@@ -24,7 +24,7 @@ namespace CommonTypes
    * Class that represents a PadInt object that is shared between the distributed system.
    **/
     [Serializable()]
-    public class PadInt
+    public class PadInt : MarshalByRefObject
     {
         private int uid;
         private int value;
@@ -48,12 +48,12 @@ namespace CommonTypes
             this.write = false;
         }
 
-        public bool isRead()
+        public bool wasRead()
         {
             return read;
         }
 
-        public bool isWrite()
+        public bool wasWrite()
         {
             return write;
         }
@@ -142,7 +142,7 @@ namespace CommonTypes
         bool CanCommit(Transaction trans);
 
         //Call from coordinator to participant to tell participant to commit its part of a transaction
-        void DoCommit(Transaction trans);
+        void DoCommit(TranscationPadInt padint);
 
         //Call from coordinator to participant to tell participant to abort its part of a transaction
         void DoAbort(Transaction trans);
@@ -186,7 +186,9 @@ namespace CommonTypes
         //when it has voted Yes but has still had no reply after some delay
         //Used to recover from server crash or delayed messages
 
-        bool GetDecision(TID tid);       
+        bool GetDecision(TID tid);
+
+        void AddToTransaction(int UID, bool wasWrite, int value, TID currentTx);
     }
 
     //This is a encapsulation of the Transaction Identifier
@@ -197,18 +199,12 @@ namespace CommonTypes
         /**
          * Operations made by client 
          */
-        private List<PadInt> operations;
 
         public TID(int id) { 
             this.id = id;
-            this.operations = new List<PadInt>();
         }
 
         public int GetID() { return this.id; }
-
-        public void addOperations(List<PadInt> listOfOperations) {
-            this.operations.AddRange(listOfOperations);
-        }
 
         public override string ToString()
         {
@@ -244,6 +240,21 @@ namespace CommonTypes
         }
     }
 
+    [Serializable()]
+    public struct TranscationPadInt
+    {
+        public int _UID;
+        public bool _wasWrite;
+        public int _value;
+
+        public TranscationPadInt(int UID, bool wasWrite, int value)
+        {
+            _UID = UID;
+            _wasWrite = wasWrite;
+            _value = value;
+        }
+    }
+
     //It is a representation of the Transaction
     //TID must be unique
     [Serializable()]
@@ -251,16 +262,18 @@ namespace CommonTypes
     {
         private TID tid;
         private List<int> partcipants;
-
-        private List<PadInt> readSet;
-        private List<PadInt> writeSet;
+        private Dictionary<int, TranscationPadInt> operations;
 
         public Transaction(TID tid)
         {
             this.tid = tid;
             partcipants = new List<int>();
-            readSet = new List<PadInt>();
-            writeSet = new List<PadInt>();
+            operations = new Dictionary<int, TranscationPadInt>();
+        }
+
+        public void addOperations(TranscationPadInt operation)
+        {
+            this.operations.Add(operation._UID, operation);
         }
 
         public TID GetTID() { return this.tid; }
@@ -270,24 +283,26 @@ namespace CommonTypes
             this.partcipants.Add(participant);
         }
 
-        public void AddReadSet(PadInt padInt)
-        {
-            this.readSet.Add(padInt);
-        }
-        public void AddWriteSet(PadInt padInt)
-        {
-            this.writeSet.Add(padInt);
-        }
-
         public List<int> GetParticipants() { return this.partcipants; }
-
-        public List<PadInt> GetReadSet() { return this.readSet; }
-
-        public List<PadInt> GetWriteSet() { return this.writeSet; }
 
         public override string ToString()
         {
             return "Trans with " + tid.ToString();
+        }
+
+        public List<TranscationPadInt> GetWritePadInts()
+        {
+            List<TranscationPadInt> writeList = new List<TranscationPadInt>();
+
+            foreach (TranscationPadInt transPadInt in this.operations.Values)
+            {
+                if (transPadInt._wasWrite)
+                {
+                    writeList.Add(transPadInt);
+                }
+            }
+
+            return writeList;
         }
     }
 
