@@ -38,12 +38,7 @@ namespace DataServer
         { 
             return this.joined.Contains(tid); 
         }
-        //test
-        public void WriteValue(TID tid, PadInt padint, IMasterServer master)
-        {
-            master.LogWrite(tid, padint);
-        }
-
+ 
         public void CloseTransaction(TID tid)
         {
             this.joined.Remove(tid);
@@ -59,7 +54,7 @@ namespace DataServer
         public static readonly string BACKUP_SERVER = "Backup";
         public static readonly int MILLI = 1000;
         // Data Structres
-        private Dictionary<int, PadInt> padIntDB;
+        private Dictionary<int, PadIntServer> padIntDB;
         private enum State { Failed, Freezed, Functional }
         private object waiting = new object();
         // Variables
@@ -84,14 +79,14 @@ namespace DataServer
 
         public IDataServerImp()
         {
-            this.padIntDB = new Dictionary<int, PadInt>();
+            this.padIntDB = new Dictionary<int, PadIntServer>();
             this.DataServerState = (int)State.Functional;
             this.WorkingThreads = 0;
         }
 
         public IDataServerImp(int dataServerID, string role, string url)
         {
-            this.padIntDB = new Dictionary<int, PadInt>();
+            this.padIntDB = new Dictionary<int, PadIntServer>();
             this.DataServerState = (int)State.Functional;
             this.WorkingThreads = 0;
             this.dataServerID = dataServerID;
@@ -109,9 +104,9 @@ namespace DataServer
 
         }
 
-        private void ReplacePadInt(PadInt padInt)
+        private void ReplacePadIntServer(PadIntServer padIntServer)
         {
-            this.padIntDB[padInt.uid].Write(padInt.value);
+            this.padIntDB[padIntServer.GetUID()].SetValue(padIntServer.GetValue());
         }
 
         private bool hasPadInt(int uid)
@@ -125,7 +120,8 @@ namespace DataServer
          * Method that allows a user to create a new PadInt
          * object in the DataServer;
          **/
-        public PadInt CreateObject(int uid, TID tid)
+
+        public void CreateObject(int uid)
         {
             lock (this.waiting)
             {
@@ -135,27 +131,27 @@ namespace DataServer
                     this.WorkingThreads++;
                     Monitor.Wait(this.waiting);
                 }
-                if (!PermissionToCreate(uid))
+                if (!PadIntExists(uid))
                 {
-                    PadInt padIntObject = new PadInt(uid, this.url, tid);
+                    PadIntServer padIntObject = new PadIntServer(uid);
                     this.padIntDB.Add(uid, padIntObject);
                     NotifyMasterServer(this.url, uid);
                     //join in the transaciton
-                    this.transactionSys.JoinTransaction(tid, this.getMasterRemoteInstance());
+                    //this.transactionSys.JoinTransaction(tid, this.getMasterRemoteInstance());
                     Console.WriteLine("Object with id " + uid + " created with sucess"); ;
-                    return padIntObject;
+                    //return padIntObject;
                 }
                 else
                 {
                     Console.WriteLine("ERROR: The object with id " + uid + " already exists.");
-                    return null;
+                   //return null;
                 }
             }
         }
         /**
-         * Method that return an reference to the PadInt object with identifier uid. 
+         * Method that return an reference to the PadIntServer object with identifier uid. 
          **/
-        public PadInt AccessObject(int uid)
+        public PadIntServer AccessObject(int uid)
         {
             lock (this.waiting)
             {
@@ -165,11 +161,11 @@ namespace DataServer
                     Monitor.Wait(this.waiting);
                 }
                 
-                PadInt padint = this.padIntDB[uid];
+                PadIntServer padint = this.padIntDB[uid];
                 
                 if (padint != null)
                 {
-                    this.transactionSys.JoinTransaction(padint.GetTID(), this.getMasterRemoteInstance());
+                    //this.transactionSys.JoinTransaction(padint.GetTID(), this.getMasterRemoteInstance());
                 }
                 
                 return padint;
@@ -180,7 +176,7 @@ namespace DataServer
          * Method that verifies if the a PadInt object with identifier 
          * uid can be created at the DataServer.
          **/
-        public bool PermissionToCreate(int uid)
+        public bool PadIntExists(int uid)
         {
             bool answerRequest = false;
             IMasterServer remoteObject = getMasterRemoteInstance();
@@ -332,11 +328,6 @@ namespace DataServer
          * Transactions  
          **/
 
-        public void WriteLog(PadInt padint)
-        {
-            this.transactionSys.WriteValue(padint.GetTID(), padint, getMasterRemoteInstance());
-        }
-
         public bool CanCommit(Transaction trans)
         {
             bool valid = true;
@@ -350,13 +341,6 @@ namespace DataServer
         public void DoCommit(Transaction trans)
         {
             //do changes
-            foreach (PadInt padInt in trans.GetWriteSet())
-            {
-                if (this.hasPadInt(padInt.uid))
-                {
-                    this.ReplacePadInt(padInt);
-                }
-            }
         }
 
         public void DoAbort(Transaction trans)

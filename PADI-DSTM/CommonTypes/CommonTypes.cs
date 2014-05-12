@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommonTypes
 {
+
     [Serializable()]
     public class TxException : System.Exception
     {
@@ -25,18 +26,41 @@ namespace CommonTypes
     [Serializable()]
     public class PadInt
     {
-        public int uid;
-        public int value;
+        private int uid;
+        private int value;
+        private bool read;
+        private bool write;
 
-        private string proxy;
-        private TID tid;
 
-        public PadInt(int uid, string proxy, TID tid)
+        public PadInt(int uid)
         {
             this.uid = uid;
             this.value = 0;
-            this.proxy = proxy;
-            this.tid = tid;
+            this.read = false;
+            this.write = false;
+        }
+
+        public PadInt(int uid, int value)
+        {
+            this.uid = uid;
+            this.value = value;
+            this.read = false;
+            this.write = false;
+        }
+
+        public bool isRead()
+        {
+            return read;
+        }
+
+        public bool isWrite()
+        {
+            return write;
+        }
+
+        public int getUID()
+        {
+            return this.uid;
         }
 
         /**
@@ -45,13 +69,8 @@ namespace CommonTypes
          **/
         public int Read()
         {
+            this.read = true;
             return this.value;
-        }
-
-        private IDataServer getInstance()
-        {
-            return (IDataServer)Activator.GetObject(
-                typeof(IDataServer), this.proxy);
         }
 
         /**
@@ -60,21 +79,48 @@ namespace CommonTypes
          **/
         public void Write(int value)
         {
+            this.write = true;
             //local changes
             this.value = value;
-            //logging remote changes
-            this.getInstance().WriteLog(this);
-
         }
 
         public override string ToString()
         {
             return "uid: " + this.uid + " val: " + this.value;
         }
+    }
 
-        public TID GetTID()
+    [Serializable()]
+    public class PadIntServer
+    {
+        private int uid;
+        private int value;
+
+        public PadIntServer(int uid)
         {
-            return this.tid;
+            this.uid = uid;
+            this.value = 0;
+        }
+
+        public int GetUID()
+        {
+            return uid;
+        }
+        
+        public int GetValue()
+        {
+            return this.value;
+        }
+
+        public void SetValue(int value)
+        {
+            //local changes
+            this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return "uid: " + this.uid + " val: " + this.value;
         }
     }
 
@@ -83,14 +129,12 @@ namespace CommonTypes
      **/
     public interface IDataServer
     {
-        PadInt CreateObject(int uid, TID tid);
-        PadInt AccessObject(int uid);
+        void CreateObject(int uid);
+        PadIntServer AccessObject(int uid);
         bool Disconnect();
         bool DumpState();
         bool FreezeDataServer();
         bool RecoverDataServer();
-
-        void WriteLog(PadInt padint);
 
         //Data Servers will implement participant's transaction interface
         //Call from coordinator to participant to ask whether it can commit a transaction
@@ -142,12 +186,7 @@ namespace CommonTypes
         //when it has voted Yes but has still had no reply after some delay
         //Used to recover from server crash or delayed messages
 
-        bool GetDecision(TID tid);
-
-        //Logs the writeOperation
-        void LogWrite(TID tid, PadInt padint);
-
-       
+        bool GetDecision(TID tid);       
     }
 
     //This is a encapsulation of the Transaction Identifier
@@ -155,10 +194,21 @@ namespace CommonTypes
     public class TID : IEquatable<TID>
     {
         private int id;
+        /**
+         * Operations made by client 
+         */
+        private List<PadInt> operations;
 
-        public TID(int id) { this.id = id; }
+        public TID(int id) { 
+            this.id = id;
+            this.operations = new List<PadInt>();
+        }
 
         public int GetID() { return this.id; }
+
+        public void addOperations(List<PadInt> listOfOperations) {
+            this.operations.AddRange(listOfOperations);
+        }
 
         public override string ToString()
         {

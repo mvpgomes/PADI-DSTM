@@ -53,7 +53,7 @@ namespace ClientApplicationForm
             else
             {
                 updatePadintStack(res.ToString());
-                cachedObjects.Add(res.uid, res);
+                cachedObjects.Add(res.getUID(), res);
             }
         }
 

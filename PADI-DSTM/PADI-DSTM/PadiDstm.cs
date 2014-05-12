@@ -17,8 +17,12 @@ namespace PADI_DSTM
         private static TcpChannel channel;
         private static IMasterServer remoteMaster;
         private static TID currentTx;
+        private static Dictionary<int, PadInt> acessedPadInts;
        
-        static PadiDstm() { }
+        static PadiDstm() 
+        {
+            acessedPadInts = new Dictionary<int, PadInt>();
+        }
 
         public static bool Init()
         {
@@ -109,7 +113,6 @@ namespace PADI_DSTM
          */
         public static PadInt CreatePadInt(int uid)
         {
-            PadInt reference = null;
             Console.WriteLine("trying create a padint");
             try
             {
@@ -120,11 +123,14 @@ namespace PADI_DSTM
                 IDataServer remoteServer = (IDataServer)Activator.GetObject(
                     typeof(IDataServer), dataServerAddress);
 
-                reference = remoteServer.CreateObject(uid, currentTx);
+                remoteServer.CreateObject(uid);
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); }
+            //crete a local padint
+            PadInt padint = new PadInt(uid);
+            acessedPadInts.Add(uid, padint);
 
-            return reference;
+            return padint;
         }
 
         /**
@@ -138,18 +144,34 @@ namespace PADI_DSTM
          */
         public static PadInt AccessPadInt(int uid)
         {
-            PadInt reference = null;
+            PadInt padInt = null;
+            PadIntServer padIntServer = null;
 
-            try
+            //Have already acessed?
+            if (acessedPadInts.ContainsKey(uid))
             {
-                IMasterServer remoteMaster = getMasterInstance();
-                string dataServerAddress = remoteMaster.GetPadIntLocation(uid);
-                IDataServer remoteServer = getDataServerInstance(dataServerAddress);
-                reference = remoteServer.AccessObject(uid);
+                padInt = acessedPadInts[uid];
             }
-            catch (Exception) { return null; }
-            
-            return reference;
+            else
+            {
+                // otherwise create one
+                try
+                {
+                    IMasterServer remoteMaster = getMasterInstance();
+                    string dataServerAddress = remoteMaster.GetPadIntLocation(uid);
+                    IDataServer remoteServer = getDataServerInstance(dataServerAddress);
+                    padIntServer = remoteServer.AccessObject(uid);
+                    //Do the conversion
+                    padInt = convertPadInt(padIntServer);
+                }
+                catch (Exception) { return null; }
+            }
+
+            return padInt;
+        }
+
+        private static PadInt convertPadInt(PadIntServer padIntServer){
+            return new PadInt(padIntServer.GetUID(), padIntServer.GetValue());
         }
 
         /**
