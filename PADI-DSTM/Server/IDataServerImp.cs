@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,14 +8,13 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using CommonTypes;
-using CustomExceptions;
 
 namespace DataServer
 {
 
    public class IDataServerImp : MarshalByRefObject, IDataServer
     {
-        // COnstants
+        // Constants
         private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
         public static readonly string PRIMARY_SERVER = "Primary";
         public static readonly string BACKUP_SERVER = "Backup";
@@ -35,17 +34,12 @@ namespace DataServer
         private bool primaryIsAlive;
         // Timer Variables
         private int period;
-
-        /// <summary>
-        /// We need this?
-        /// </summary>
-        private int delay;
-
         private Timer PrimaryTimerReference;
         private Timer BackupTimerReference;
         private bool PrimaryTimerCanceled;
         private bool BackupTimerCanceled;
 
+      
         public IDataServerImp()
         {
             this.padIntDB = new Dictionary<int, PadIntServer>();
@@ -62,7 +56,6 @@ namespace DataServer
             this.role = role;
             this.url = url;
             this.period = 5;
-            this.delay = 3;
         }
 
         public string ReplicaAddress 
@@ -104,11 +97,18 @@ namespace DataServer
                     PadIntServer padIntObject = new PadIntServer(uid);
                     this.padIntDB.Add(uid, padIntObject);
                     NotifyMasterServer(this.url, uid);
-                    Console.WriteLine("Object with id " + uid + " created with sucess");
+                    //join in the transaciton
+                    //this.transactionSys.JoinTransaction(tid, this.getMasterRemoteInstance());
+                    Console.WriteLine("Object with id " + uid + " created with sucess"); ;
+                    // update the replica
+                    IDataServer remoteReplica = getReplicaRemoteInstance(this.ReplicaAddress);
+                    remoteReplica.UpdatePadInt(uid, 0);
+                    //return padIntObject;
                 }
                 else
                 {
-                    throw new TxException("TxException: The object with id " + uid + " already exists.");
+                    Console.WriteLine("ERROR: The object with id " + uid + " already exists.");
+                   //return null;
                 }
             }
         }
@@ -124,12 +124,8 @@ namespace DataServer
                     this.WorkingThreads++;
                     Monitor.Wait(this.waiting);
                 }
-
-                if (this.padIntDB.ContainsKey(uid))
-                {
-                    return this.padIntDB[uid];
-                }
-                throw new TxException("TxException: The object with id " + uid + " does not exists.");
+                
+                return this.padIntDB[uid];
             }
         }
 
@@ -322,17 +318,31 @@ namespace DataServer
             foreach (KeyValuePair<int, PadIntServer> key in primaryDataBase)
             {
                 this.padIntDB.Add(key.Key, key.Value);
+                Console.WriteLine("Update PadInt with uid : " + key.Value.GetUID() + " value : " + key.Value.GetValue());
             }
         }
 
        /**
         * Update the PadInt after a write operation is performed
         **/
-        public void updatePadInt(int id, int value)
+        public void UpdatePadInt(int id, int value)
         {
-            this.padIntDB[id].SetValue(value);
+            if (this.padIntDB.ContainsKey(id)) { 
+                this.padIntDB[id].SetValue(value);
+                Console.WriteLine("Update PadInt with uid : " + id + " value : " + value);
+            }
+            else
+            {
+                PadIntServer padInt = new PadIntServer(id);
+                this.padIntDB.Add(id, padInt);
+                Console.WriteLine("Created PadInt with uid : " + id);
+            }
         }
 
+        /**
+         * Method that is called by the primary server to assign
+         * a new replica server.
+         **/ 
         public void createReplicaServer(int serverID, string port)
         {
             try
@@ -342,6 +352,9 @@ namespace DataServer
                 string replicaAddr = remoteMaster.CreateDataServerReplica(serverID, Convert.ToInt32(port));
                 Console.WriteLine("Replica address " + replicaAddr);
                 this.ReplicaAddress = replicaAddr;
+                // Populate the replica server with the existents padInt on the database
+                IDataServer remoteReplica = getReplicaRemoteInstance(this.ReplicaAddress);
+                remoteReplica.PopulateReplica(this.padIntDB);
             }
             catch (Exception e)
             {

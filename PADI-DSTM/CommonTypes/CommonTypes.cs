@@ -1,3 +1,4 @@
+﻿
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CommonTypes
 {
-    
+
     /// <summary>
     /// IDataServer - Commom Interface used by the data servers.
     /// </summary>
@@ -21,7 +22,7 @@ namespace CommonTypes
          *  IDataServer - AccessObject.
          *  @param uid - int object uid.
          *  @return PadIntServer reference.
-         */ 
+         */
         PadIntServer AccessObject(int uid);
         /**
          *  IDataServer - Disconnect.
@@ -73,6 +74,21 @@ namespace CommonTypes
          *  @param primaryIsAlive - boolean
          */
         void updatePrimaryState(bool primaryIsAlive);
+
+        /**
+       * IDataServer - updatePadInt 
+       * Replication Methods
+       * @param id - integer
+       * @param value - integer
+       **/
+        void UpdatePadInt(int id, int value);
+
+        /**
+        * IDataServer - PopulateReplica 
+        * Replication Methods
+        * @param primaryDataBase - Dictionary
+        **/
+        void PopulateReplica(Dictionary<int, PadIntServer> primaryDataBase);
     }
 
     /// <summary>
@@ -172,20 +188,14 @@ namespace CommonTypes
          *  @param tid - TID.
          *  @return bool.
          */
+
         bool GetDecision(TID tid);
-        /**
-         *  IMasterServer - AddToTransaction
-         *  Add to transaction.
-         *  @param wasWrite - bool.
-         *  @param value - int.
-         *  @param currentTx - TID.
-         */
 
         void AddWriteToTrans(int uid, int value, TID tid);
 
         void AddReadToTrans(int uid, TID tid);
     }
-   
+
     /// <summary>
     /// TranscationPadInt - Used by master to save transaction operations.
     /// </summary>
@@ -216,5 +226,4 @@ namespace CommonTypes
             _value = 0;
         }
     }
-
-} //CommonTypes
+}
