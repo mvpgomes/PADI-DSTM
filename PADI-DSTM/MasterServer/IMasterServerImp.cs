@@ -11,9 +11,9 @@ using System.IO;
 
 namespace MasterServer
 {
-   /// <summary>
-   /// TidGenerator
-   /// </summary>
+    /// <summary>
+    /// TidGenerator
+    /// </summary>
     class TidGenerator
     {
         static private int count = 0;
@@ -32,24 +32,25 @@ namespace MasterServer
         private static string ServerPath = Directory.GetCurrentDirectory() + "\\Server.exe";
         private static string BACKUP_ROLE = "Backup";
         private static readonly int PORT_INCREMENT = 1000;
-        
+
         private int dataServerId;
         private static IMasterServerImp instance;
-       
+
         private Dictionary<int, string> primaryServerAddress;
         private Dictionary<int, string> backupServerAddress;
         private Dictionary<int, string> objectLocation;
         private Dictionary<int, int> storageVector;
 
-        private TransactionManager tm;
+        private TransactionManager transactionManager;
 
-        private IMasterServerImp() {
+        private IMasterServerImp()
+        {
             this.primaryServerAddress = new Dictionary<int, string>();
             this.backupServerAddress = new Dictionary<int, string>();
-            this.objectLocation = new Dictionary<int,string>();
+            this.objectLocation = new Dictionary<int, string>();
             this.storageVector = new Dictionary<int, int>();
             this.dataServerId = 0;
-            this.tm = new TransactionManager();
+            this.transactionManager = new TransactionManager();
         }
 
         /**
@@ -70,7 +71,7 @@ namespace MasterServer
         /**
          * Method that register a Data Server and store its 
          * URL in the well know servers structure.
-         **/ 
+         **/
         public int RegisterDataServer(string url)
         {
             int serverId = this.dataServerId;
@@ -124,7 +125,7 @@ namespace MasterServer
          * Method that receives the uid from a PadInt and returns 
          * true if the object PadInt with identifier uid exists,
          * otherwise returns false.
-         **/ 
+         **/
         public bool ObjectExists(int uid)
         {
             return this.objectLocation.ContainsKey(uid);
@@ -133,7 +134,7 @@ namespace MasterServer
         /**
          * Method that updates the information at the MasterServer
          * when a PadInt object is created in a server.
-         **/ 
+         **/
         public bool ObjCreatedSuccess(string url, int uid)
         {
             this.objectLocation.Add(uid, url);
@@ -179,14 +180,14 @@ namespace MasterServer
         /**
          * Method that returns an remote object instance to the 
          * Data Server registered at url.
-         **/ 
+         **/
         public IDataServer GetDataServerInstance(string url)
         {
-           
-          IDataServer remoteServer = (IDataServer)Activator.GetObject(
-                    typeof(IDataServer),
-                                   url);
-            
+
+            IDataServer remoteServer = (IDataServer)Activator.GetObject(
+                      typeof(IDataServer),
+                                     url);
+
             return remoteServer;
         }
 
@@ -205,7 +206,7 @@ namespace MasterServer
          **/
         public string CreateDataServerReplica(int primaryID, int primaryPort)
         {
-        
+
             string backupAddress = GenerateAddress(primaryPort);
             this.backupServerAddress[primaryID] = backupAddress;
 
@@ -231,12 +232,15 @@ namespace MasterServer
             return backupAddress;
         }
 
-        //AddToTransaction(padint.getUID(), padint.wasWrite(), padint.Read(), currentTx);
-        public void AddToTransaction(int UID, bool wasWrite, int value, TID currentTx)
+
+        public void AddWriteToTrans(int uid, int value, TID tid)
         {
-            Transaction transaction = tm.GetTransaction(currentTx);
-            TranscationPadInt transPadInt = new TranscationPadInt(UID, wasWrite, value);
-            transaction.addOperations(transPadInt);
+            transactionManager.GetTransaction(tid).AddWrite(uid, value);
+        }
+
+        public void AddReadToTrans(int uid, TID tid)
+        {
+            transactionManager.GetTransaction(tid).AddRead(uid);
         }
 
         public void notifyMasterAboutFailure(int id, string address)
@@ -246,67 +250,62 @@ namespace MasterServer
 
             if (!primaryServerAddress.Equals(address) && backupServerAddress.Equals(address))
             {
-                this.primaryServerAddress[id]= backupAddress;
+                this.primaryServerAddress[id] = backupAddress;
                 this.backupServerAddress.Remove(id);
             }
         }
 
-         
+
         public TID OpenTransaction()
         {
+            //get lock
             TID tid = TidGenerator.GenerateTID();
-            Transaction trans = new Transaction(tid);
-            tm.AddTransaction(trans);
-            //tid encapsulates the information about a transaction
+            //release lock
+
+            Transaction trans = new Transaction(tid, transactionManager.GetLastCommit());
+            transactionManager.AddTransaction(trans);
+
             return tid;
         }
 
         public bool CloseTransaction(TID tid)
         {
-            Transaction trans = tm.GetTransaction(tid);
+            bool result = false;
 
-            foreach (TranscationPadInt transPadInt in trans.GetWritePadInts())
+            //get lock
+            if (this.transactionManager.IsValidTransaction(tid))
             {
-                IDataServer dataServer = this.GetDataServerInstance(this.GetPadIntLocation(transPadInt._UID));
-                dataServer.DoCommit(transPadInt);
-            }
-
-            //Vamos percorrer os PadInts de cada transaction
-
-            //
-            /*
-            foreach (int participant in trans.GetParticipants())
-            {
-                IDataServer dataServer = this.GetDataServerInstance(this.GetPadIntLocation(participant));
-                //ask for vote
-                if (dataServer.CanCommit(trans))
+                foreach (KeyValuePair<int, TranscationPadInt> entry in this.transactionManager.GetTransaction(tid).WriteValues())
                 {
-                    dataServer.DoCommit(trans);
-                    tm.RemoveTransaction(trans);                    
+                    IDataServer dataServer = this.GetDataServerInstance(this.GetPadIntLocation(entry.Key));
+                    dataServer.DoCommit(entry.Value);
                 }
-            } */
-            
-            return true;
+                this.transactionManager.SetLastCommit(tid);
+                result = true;
+            }
+            //release lock
+
+            return result;
         }
 
         public void AbortTransaction(TID tid)
         {
-           
+
         }
 
         public void Join(TID tid, int participant)
         {
-            Transaction trans = this.tm.GetTransaction(tid);
+            Transaction trans = this.transactionManager.GetTransaction(tid);
             if (trans != null)
             {
                 trans.AddParticipant(participant);
-            }            
+            }
         }
 
         public void HaveCommitted(TID tid, int participant)
         {
 
-        }   
+        }
 
         public bool GetDecision(TID tid)
         {

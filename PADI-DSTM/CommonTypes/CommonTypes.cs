@@ -180,9 +180,11 @@ namespace CommonTypes
          *  @param value - int.
          *  @param currentTx - TID.
          */
-        void AddToTransaction(int UID, bool wasWrite, int value, TID currentTx);
-    }
 
+        void AddWriteToTrans(int uid, int value, TID tid);
+
+        void AddReadToTrans(int uid, TID tid);
+    }
    
     /// <summary>
     /// TranscationPadInt - Used by master to save transaction operations.
@@ -194,19 +196,24 @@ namespace CommonTypes
          * TranscationPadInt variables
          */
         public int _UID;
-        public bool _wasWrite;
         public int _value;
+
         /*
          * TranscationPadInt constructor
          * @param UID - int.
          * @param wasWrite - bool.
          * @param value - int.
          */
-        public TranscationPadInt(int UID, bool wasWrite, int value)
+        public TranscationPadInt(int UID, int value)
         {
             _UID = UID;
-            _wasWrite = wasWrite;
             _value = value;
+        }
+
+        public TranscationPadInt(int UID)
+        {
+            _UID = UID;
+            _value = 0;
         }
     }
 

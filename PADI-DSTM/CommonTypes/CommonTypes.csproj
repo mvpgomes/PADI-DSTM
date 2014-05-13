@@ -45,10 +45,9 @@
     <Compile Include="PadInt.cs" />
     <Compile Include="PadIntServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TansactionalManager.cs" />
+    <Compile Include="TansactionManager.cs" />
     <Compile Include="TID.cs" />
     <Compile Include="Transaction.cs" />
-    <Compile Include="TransactionalSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CustomExceptions\CustomExceptions.csproj">

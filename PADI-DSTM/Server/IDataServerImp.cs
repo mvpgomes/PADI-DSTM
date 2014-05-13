@@ -8,6 +8,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using CommonTypes;
+using CustomExceptions;
 
 namespace DataServer
 {
@@ -45,9 +46,6 @@ namespace DataServer
         private bool PrimaryTimerCanceled;
         private bool BackupTimerCanceled;
 
-        //Transaction
-        private TransactionSystem transactionSys;
-
         public IDataServerImp()
         {
             this.padIntDB = new Dictionary<int, PadIntServer>();
@@ -63,7 +61,6 @@ namespace DataServer
             this.dataServerID = dataServerID;
             this.role = role;
             this.url = url;
-            this.transactionSys = new TransactionSystem(dataServerID);
             this.period = 5;
             this.delay = 3;
         }
@@ -107,15 +104,11 @@ namespace DataServer
                     PadIntServer padIntObject = new PadIntServer(uid);
                     this.padIntDB.Add(uid, padIntObject);
                     NotifyMasterServer(this.url, uid);
-                    //join in the transaciton
-                    //this.transactionSys.JoinTransaction(tid, this.getMasterRemoteInstance());
-                    Console.WriteLine("Object with id " + uid + " created with sucess"); ;
-                    //return padIntObject;
+                    Console.WriteLine("Object with id " + uid + " created with sucess");
                 }
                 else
                 {
-                    Console.WriteLine("ERROR: The object with id " + uid + " already exists.");
-                   //return null;
+                    throw new TxException("TxException: The object with id " + uid + " already exists.");
                 }
             }
         }
@@ -131,8 +124,12 @@ namespace DataServer
                     this.WorkingThreads++;
                     Monitor.Wait(this.waiting);
                 }
-                
-                return this.padIntDB[uid];
+
+                if (this.padIntDB.ContainsKey(uid))
+                {
+                    return this.padIntDB[uid];
+                }
+                throw new TxException("TxException: The object with id " + uid + " does not exists.");
             }
         }
 

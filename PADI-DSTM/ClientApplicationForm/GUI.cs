@@ -59,22 +59,19 @@ namespace ClientApplicationForm
 
         private void AccessPadInt_Click(object sender, EventArgs e)
         {
-            PadInt res = null;
-
-            string PadIntID = uidTxt.Text;
-
+       
             if (!this.isOnTrans)
             {
                 updateLog("Please begin a transaction.");
                 return;
             }
-
+            string PadIntID = uidTxt.Text;
             if (PadIntID.Length == 0)
             {
                 updateLog("Please insert a valid ID.");
                 return;
             }
-
+            PadInt res = null;
             int uid = Convert.ToInt32(PadIntID);
 
             if (!cachedObjects.ContainsKey(uid))
@@ -159,9 +156,17 @@ namespace ClientApplicationForm
         {
             if (this.isOnTrans)
             {
-                PadiDstm.TxCommit();
-                this.isOnTrans = false;
-                updateLog("Transaction Aborted.");
+                bool response = PadiDstm.TxAbort();
+                if (response)
+                {
+                    this.isOnTrans = false;
+                    this.cachedObjects.Clear();
+                    updateLog("Transaction Aborted.");
+                }
+                else
+                {
+                    updateLog("Transaction Abort failed.");
+                }
             }
             else
             {
@@ -184,9 +189,11 @@ namespace ClientApplicationForm
         {
             try
             {
-                PadiDstm.TxCommit();
+                bool res = PadiDstm.TxCommit();
                 this.isOnTrans = false;
-                updateLog("Transaction Committed.");
+                this.cachedObjects.Clear();
+
+                if (res) { updateLog("Transaction Committed."); }
             }
             catch (TxException ex) { updateLog(ex.Message); }  
        }
@@ -242,7 +249,7 @@ namespace ClientApplicationForm
             try
             {
                 PadInt obj = cachedObjects[uid];
-                updatePadintStack(obj.ToString());
+                updatePadintStack(obj.Read().ToString());
             }
             catch (Exception) { updateLog("The PadInt with id " + uid + " does not exist."); }                
         }
