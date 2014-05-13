@@ -68,7 +68,12 @@ namespace DataServer
         private bool primaryIsAlive;
         // Timer Variables
         private int period;
+
+        /// <summary>
+        /// We need this?
+        /// </summary>
         private int delay;
+
         private Timer PrimaryTimerReference;
         private Timer BackupTimerReference;
         private bool PrimaryTimerCanceled;
