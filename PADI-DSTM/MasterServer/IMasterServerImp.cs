@@ -250,9 +250,6 @@ namespace MasterServer
             {
                 String str = this.objectLocation[key];
 
-                Console.WriteLine("Entry Key " + key);
-                Console.WriteLine("Entry Value " + str);
-
                 if (str.Equals(primaryAddr))
                 {
                     this.objectLocation[key] = secondaryAddr;

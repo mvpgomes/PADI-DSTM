@@ -147,7 +147,6 @@ namespace DataServer
                     PadIntServer padIntObject = new PadIntServer(uid);
                     this.padIntDB.Add(uid, padIntObject);
                     NotifyMasterServer(this.url, uid);
-                    //join in the transaciton
                     Console.WriteLine("Object with id " + uid + " created with sucess"); ;
                     // update the replica
                     IDataServer remoteReplica = getReplicaRemoteInstance(this.ReplicaAddress);
@@ -329,6 +328,9 @@ namespace DataServer
         public void DoCommit(TranscationPadInt transPadInt)
         {
             this.padIntDB[transPadInt._UID].SetValue(transPadInt._value);
+            //Updates the replica
+            IDataServer remoteReplica = getReplicaRemoteInstance(this.ReplicaAddress);
+            remoteReplica.UpdatePadInt(transPadInt._UID, transPadInt._value);
         }
 
         public void DoAbort(TID tid)
