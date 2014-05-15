@@ -242,16 +242,33 @@ namespace MasterServer
             transactionManager.GetTransaction(tid).AddRead(uid);
         }
 
-        public void notifyMasterAboutFailure(int id, string address)
+        private void UpdatePadIntLocation(string primaryAddr, string secondaryAddr)
+        {
+            List<int> keys = new List<int>(this.objectLocation.Keys);
+
+            foreach (int key in keys) 
+            {
+                String str = this.objectLocation[key];
+
+                Console.WriteLine("Entry Key " + key);
+                Console.WriteLine("Entry Value " + str);
+
+                if (str.Equals(primaryAddr))
+                {
+                    this.objectLocation[key] = secondaryAddr;
+                }
+            }
+        }
+
+        public void NotifyMasterAboutFailure(int id, string address)
         {
             string primaryAddress = this.primaryServerAddress[id];
             string backupAddress = this.backupServerAddress[id];
+            
+            this.primaryServerAddress[id] = backupAddress;
+            this.backupServerAddress.Remove(id);
 
-            if (!primaryServerAddress.Equals(address) && backupServerAddress.Equals(address))
-            {
-                this.primaryServerAddress[id] = backupAddress;
-                this.backupServerAddress.Remove(id);
-            }
+            UpdatePadIntLocation(primaryAddress, backupAddress);
         }
 
 

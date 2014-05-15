@@ -507,7 +507,7 @@ namespace DataServer
                     this.role = PRIMARY_SERVER;
                     this.BackupTimerReference.Dispose();
                     IMasterServer remoteMaster = getMasterRemoteInstance();
-                    remoteMaster.notifyMasterAboutFailure(this.dataServerID, this.url);
+                    remoteMaster.NotifyMasterAboutFailure(this.dataServerID, this.url);
                     this.primaryIsAlive = true;
                     createReplicaServer(this.dataServerID, DataServer.port);
                     RunTimerPrimary();

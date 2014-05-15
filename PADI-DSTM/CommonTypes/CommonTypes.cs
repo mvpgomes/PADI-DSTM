@@ -143,12 +143,12 @@ namespace CommonTypes
          */
         int RegisterDataServer(string url);
         /**
-         *  IMasterServer - notifyMasterAboutFailure
+         *  IMasterServer - NotifyMasterAboutFailure
          *  Notify Master about the failure.
          *  @param id - int.
          *  @param address - string.
          */
-        void notifyMasterAboutFailure(int id, string address);
+        void NotifyMasterAboutFailure(int id, string address);
         /**
          *  IMasterServer - OpenTransaction
          *  Start a new transaction and delivers a unique TID trans.
