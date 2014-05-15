@@ -4,6 +4,10 @@ using CommonTypes;
 class CrossedLocks {
 
     static void Main(string[] args) {
+
+        //Toggle comment
+        //args = new string[] { "C" }; 
+
         bool res;
         PadInt pi_a, pi_b;
         PadiDstm.Init();

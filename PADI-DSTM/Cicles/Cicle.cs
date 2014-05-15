@@ -44,6 +44,9 @@ class Cicle {
             res = PadiDstm.TxCommit();
             if (!res) Console.WriteLine("$$$$$$$$$$$$$$ ABORT $$$$$$$$$$$$$$$$$");
         }
+        //Added for a better output - Miguel
+        Console.WriteLine("");
+
         Console.WriteLine("####################################################################");
         Console.WriteLine("Status after cycle. Press enter for verification transaction.");
         Console.WriteLine("####################################################################");
