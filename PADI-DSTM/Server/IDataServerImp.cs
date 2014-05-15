@@ -14,32 +14,45 @@ namespace DataServer
 
    public class IDataServerImp : MarshalByRefObject, IDataServer
     {
-        // Constants
+        /*
+         * IDataServerImp Constants
+         */
         private readonly string MASTER_SERVER_ADDRESS = "tcp://localhost:8086/MasterServer";
         public static readonly string PRIMARY_SERVER = "Primary";
         public static readonly string BACKUP_SERVER = "Backup";
         public static readonly int MILLI = 1000;
-        // Data Structres
+        /*
+         * IDataServerImp Data Structres
+         */
         private Dictionary<int, PadIntServer> padIntDB;
         private enum State { Failed, Freezed, Functional }
         private object waiting = new object();
-        // Variables
+        /*
+         * IDataServerImp Variables
+         */
         private int WorkingThreads;
         private int DataServerState;
         private int dataServerID;
         private string url;
-        // Replication Variables
+        /*
+         * IDataServerImp Replication Variables
+         */
         private string role;
         private string replicaAddress;
         private bool primaryIsAlive;
-        // Timer Variables
+        /*
+         * IDataServerImp Timer Variables
+         */
         private int period;
         private Timer PrimaryTimerReference;
         private Timer BackupTimerReference;
         private bool PrimaryTimerCanceled;
         private bool BackupTimerCanceled;
 
-      
+        /*
+         * IDataServerImp Constructor
+         * A new DataServer Instance is created.
+         */     
         public IDataServerImp()
         {
             this.padIntDB = new Dictionary<int, PadIntServer>();
@@ -47,6 +60,13 @@ namespace DataServer
             this.WorkingThreads = 0;
         }
 
+        /*
+         * IDataServerImp Constructor
+         * A new DataServer Instance is created.
+         * @param dataServerID - int - data server identifier.
+         * @param role - string - role.
+         * @param url - string - string.
+         */
         public IDataServerImp(int dataServerID, string role, string url)
         {
             this.padIntDB = new Dictionary<int, PadIntServer>();
@@ -58,30 +78,60 @@ namespace DataServer
             this.period = 5;
         }
 
+        /*
+         * ReplicaAddress
+         */
         public string ReplicaAddress 
         {
             get { return replicaAddress; }
             set { replicaAddress = value; } 
-
         }
 
+        /*
+         * IDataServerImp - ReplacePadIntServer.
+         * Replace PadIntServer value with a new one.
+         * @param padIntServer - PadIntServer.
+         */
         private void ReplacePadIntServer(PadIntServer padIntServer)
         {
             this.padIntDB[padIntServer.GetUID()].SetValue(padIntServer.GetValue());
         }
 
+        /*
+         * IDataServerImp - NotifyMasterServer.
+         * Method that notify the MasterServer when a PadInt object is created
+         * sucessfully.
+         */
+        public void NotifyMasterServer(string url, int uid)
+        {
+            IMasterServer remoteObject = getMasterRemoteInstance();
+            try
+            {
+                remoteObject.ObjCreatedSuccess(url, uid);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("The remote call throw the exception : " + e);
+            }
+        }
+
+        /*
+         * IDataServerImp - hasPadInt
+         * Checks if a padIntServer with identifier uid
+         * already exists in this data server.
+         * @param uid - id of padIntServer.
+         */
         private bool hasPadInt(int uid)
         {
             return this.padIntDB.ContainsKey(uid);
         }
 
-
-
         /**
-         * Method that allows a user to create a new PadInt
-         * object in the DataServer;
-         **/
-
+          *  IDataServer - CreateObject.
+          * Method that allows a user to create a new PadInt
+          * object in the DataServer.
+          *  @param uid - int object uid.
+          */
         public void CreateObject(int uid)
         {
             lock (this.waiting)
@@ -98,23 +148,24 @@ namespace DataServer
                     this.padIntDB.Add(uid, padIntObject);
                     NotifyMasterServer(this.url, uid);
                     //join in the transaciton
-                    //this.transactionSys.JoinTransaction(tid, this.getMasterRemoteInstance());
                     Console.WriteLine("Object with id " + uid + " created with sucess"); ;
                     // update the replica
                     IDataServer remoteReplica = getReplicaRemoteInstance(this.ReplicaAddress);
                     remoteReplica.UpdatePadInt(uid, 0);
-                    //return padIntObject;
                 }
                 else
                 {
                     Console.WriteLine("ERROR: The object with id " + uid + " already exists.");
-                   //return null;
                 }
             }
         }
+
         /**
-         * Method that return an reference to the PadIntServer object with identifier uid. 
-         **/
+         *  IDataServer - AccessObject.
+         *  Method that return an reference to the PadIntServer object with identifier uid.
+         *  @param uid - int object uid.
+         *  @return PadIntServer reference.
+         */
         public PadIntServer AccessObject(int uid)
         {
             lock (this.waiting)
@@ -124,46 +175,62 @@ namespace DataServer
                     this.WorkingThreads++;
                     Monitor.Wait(this.waiting);
                 }
-                
                 return this.padIntDB[uid];
             }
         }
-
+        
         /**
-         * Method that verifies if the a PadInt object with identifier 
-         * uid can be created at the DataServer.
-         **/
+         *  IDataServer - PadIntExists.
+         *  Method that verifies if the a PadInt object with identifier 
+         *  uid can be created at the DataServer.
+         *  @param uid - int object uid.
+         *  @return bool - result.
+         */
         public bool PadIntExists(int uid)
         {
             bool answerRequest = false;
             IMasterServer remoteObject = getMasterRemoteInstance();
             answerRequest = remoteObject.ObjectExists(uid);
             return answerRequest;
-        }
+        }  
 
         /**
-         * Method that notify the MasterServer when a PadInt object is created
-         * sucessfully.
-         **/
-        public void NotifyMasterServer(string url, int uid)
+         *  IDataServer - Disconnect.
+         * Method that makes the Data Server disconnect from the current channel and
+         * after that register itself in a secret channel to accept recover calls from
+         * the PADI-DSTM lib. This method returns the port from the secret channel.
+         *  @return bool - result.
+         */
+        public bool Disconnect()
         {
-            IMasterServer remoteObject = getMasterRemoteInstance();
-           
-            try
+            lock (this.waiting)
             {
-                remoteObject.ObjCreatedSuccess(url, uid);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("The remote call throw the exception : " + e);
+                if (this.DataServerState == (int)State.Freezed)
+                {
+                    this.WorkingThreads++;
+                    Monitor.Wait(this.waiting);
+                }
+                try
+                {
+                    this.DataServerState = (int)State.Failed;
+                    ChannelServices.UnregisterChannel(DataServer.channel);
+                    return true;
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine(e.Message);
+                    return false;
+                }
             }
         }
-
+       
         /**
+         *  IDataServer - DumpState.
          * Method that shows the state of the DataServer.
          * The DataServer state is described by its id and the id's of the PadInt's that 
          * are stored in. 
-         **/
+         *  @return bool - result.
+         */
         public bool DumpState()
         {
             lock (this.waiting)
@@ -184,59 +251,16 @@ namespace DataServer
             }
         }
 
-        public IMasterServer getMasterRemoteInstance()
-        {
-            IMasterServer remoteInstance = (IMasterServer)Activator.GetObject(
-                typeof(IDataServer), MASTER_SERVER_ADDRESS);
-
-            return remoteInstance;
-        }
-        
-        public IDataServer getReplicaRemoteInstance(string replicaAddress)
-        {
-            IDataServer remoteInstance = (IDataServer)Activator.GetObject(
-                typeof(IDataServer), replicaAddress);
-
-            return remoteInstance;
-        }
-
         /**
-         * Method that makes the Data Server disconnect from the current channel and
-         * after that register itself in a secret channel to accept recover calls from
-         * the PADI-DSTM lib. This method returns the port from the secret channel.
-         **/
-        public bool Disconnect()
-        {
-            lock (this.waiting)
-            {
-                if (this.DataServerState == (int)State.Freezed)
-                {
-                    this.WorkingThreads++;
-                    Monitor.Wait(this.waiting);
-                }
-
-                try
-                {
-                    this.DataServerState = (int)State.Failed;
-                    ChannelServices.UnregisterChannel(DataServer.channel);
-                    return true;
-                }
-                catch (ArgumentException e)
-                {
-                    Console.WriteLine(e.Message);
-                    return false;
-                }
-            }
-        }
-
-        /**
+         *  IDataServer - FreezeDataServer.
          * Method that change the Data Server actual state to Freezed.
          * To stop responding call but it maintains all calls for later
          * reply, a Monitor is used to change the active Threads state.  
-         **/
+         *  @return bool - result.
+         */
         public bool FreezeDataServer()
         {
-            lock(this.waiting)
+            lock (this.waiting)
             {
 
                 if (this.DataServerState == (int)State.Functional)
@@ -247,13 +271,15 @@ namespace DataServer
                 }
                 else { return false; }
             }
-         }
-
+        }
+        
         /**
+         *  IDataServer - RecoverDataServer.
          * Method that change the Data Server actual state to Functional.
          * This method also release all process that are in the Monitor
-         * Wait room.
-         **/
+         * Wait room.  
+         *  @return bool - result.
+         */
         public bool RecoverDataServer()
         {
             bool answer = false;
@@ -272,7 +298,7 @@ namespace DataServer
                             Monitor.Pulse(this.waiting);
                         }
                     }
-                  answer = true;
+                    answer = true;
                 }
                 else { answer = false; }
             }
@@ -282,44 +308,85 @@ namespace DataServer
         }
 
         /**
-         * Transactions  
+         * --------------   Transactions    ----------------
          **/
-
+        /**
+         *  IDataServer - CanCommit.
+         * Checks if it can commit. 
+         * @param trans - Transaction.
+         *  @return bool - result.
+         */
         public bool CanCommit(Transaction trans)
         {
             bool valid = true;
-
-            //for(int Ti = startTn+1; Ti <= finishTn; Ti++)
-            // if(read set of Tv intersects write set of Ti) valid = false
-
             return valid;
         }
 
+        /**
+         *  IDataServer - DoCommit.
+         * Commit transaction. 
+         * @param transPadInt - TranscationPadInt.
+         */
         public void DoCommit(TranscationPadInt transPadInt)
         {
-            //do changes
             this.padIntDB[transPadInt._UID].SetValue(transPadInt._value);
         }
 
+        /**
+         *  IDataServer - DoAbort.
+         * Aborts transaction. 
+         * @param trans - Transaction.
+         */
         public void DoAbort(Transaction trans)
         {
             throw new NotImplementedException();
         }
-
         /**
-         *   --------------   Replication ----------------
+         * --------------   Transactions    ----------------
          **/
 
-       /**
-        * Populate the replica when it is created 
-        **/
+        /**
+         *   --------------   Replication    ----------------
+         **/
+        /**
+         *  IDataServer - DoAbort.
+        * Populate the replica when it is created. 
+         * @param primaryDataBase - Dictionary<int, PadIntServer>.
+         */
         public void PopulateReplica(Dictionary<int, PadIntServer> primaryDataBase)
         {
             foreach (KeyValuePair<int, PadIntServer> key in primaryDataBase)
             {
                 this.padIntDB.Add(key.Key, key.Value);
-                Console.WriteLine("Update PadInt with uid : " + key.Value.GetUID() + " value : " + key.Value.GetValue());
+                Console.WriteLine("Update PadInt with uid : " 
+                    + key.Value.GetUID() + " value : " + key.Value.GetValue());
             }
+        }
+
+        /**
+         *  IDataServer - getMasterRemoteInstance.
+         * 
+         * @return IMasterServer.
+         */
+        public IMasterServer getMasterRemoteInstance()
+        {
+            IMasterServer remoteInstance = (IMasterServer)Activator.GetObject(
+                typeof(IDataServer), MASTER_SERVER_ADDRESS);
+
+            return remoteInstance;
+        }
+
+        /**
+          *  IDataServer - getReplicaRemoteInstance.
+          * @param replicaAddress - string.
+          * @return IDataServer.
+          */
+        public IDataServer getReplicaRemoteInstance(string replicaAddress)
+        {
+            IDataServer remoteInstance = (IDataServer)Activator.GetObject(
+                typeof(IDataServer), replicaAddress);
+
+            return remoteInstance;
         }
 
        /**
@@ -338,7 +405,7 @@ namespace DataServer
                 Console.WriteLine("Created PadInt with uid : " + id);
             }
         }
-
+  
         /**
          * Method that is called by the primary server to assign
          * a new replica server.
@@ -364,8 +431,8 @@ namespace DataServer
                 return;
             }
         }
-
-         /**
+ 
+        /**
          * Method that is called by the primary server and
          * updates the state of the primary server at the replica.
          **/ 
@@ -377,12 +444,12 @@ namespace DataServer
 
         /**
          * Method that runs the primary server TimerTask
-         **/ 
+         */ 
         public void RunTimerPrimary()
         {
-
             TimerCallback TimerDelegate = new TimerCallback(PrimaryTimerTask);
-            System.Threading.Timer PrimaryTimerItem = new System.Threading.Timer(TimerDelegate, this, this.period * MILLI, this.period * MILLI);
+            System.Threading.Timer PrimaryTimerItem = 
+                new System.Threading.Timer(TimerDelegate, this, this.period * MILLI, this.period * MILLI);
             this.PrimaryTimerReference = PrimaryTimerItem;
 
             while (this.role == PRIMARY_SERVER)
@@ -390,16 +457,16 @@ namespace DataServer
                 System.Threading.Thread.Sleep(this.period * MILLI);
             }
             this.PrimaryTimerCanceled = true;
-
         }
-
+    
         /**
         * Method that runs the backup server TimerTask
-        **/ 
+        */ 
         public void RunTimerBackup()
         {
             TimerCallback TimerDelegate = new TimerCallback(BackupTimerTask);
-            System.Threading.Timer BackupTimerItem = new System.Threading.Timer(TimerDelegate, this, this.period * MILLI, this.period * MILLI);
+            System.Threading.Timer BackupTimerItem = 
+                new System.Threading.Timer(TimerDelegate, this, this.period * MILLI, this.period * MILLI);
             this.BackupTimerReference = BackupTimerItem;
 
             while (this.role == BACKUP_SERVER)
@@ -408,15 +475,13 @@ namespace DataServer
             }
             this.BackupTimerCanceled = true;
         }
-
-
+ 
         /**
          * Primary server task : this task is responsible to update 
          * the server state (primaryIsAlive) at the replica server.
-         **/ 
+         */ 
         public void PrimaryTimerTask(object StateObj)
         {
-
             if (this.replicaAddress != null)
             {
                 IDataServer remoteReplica = getReplicaRemoteInstance(this.replicaAddress);
@@ -428,7 +493,6 @@ namespace DataServer
             {
                 Console.WriteLine("Replica not yet assigned ...");
             }
-
             if (this.PrimaryTimerCanceled)
             {
                 this.PrimaryTimerReference.Dispose();
@@ -463,7 +527,6 @@ namespace DataServer
                 Console.WriteLine("Primary is alive ...");
                 this.primaryIsAlive = false;
             }
-
             if (this.BackupTimerCanceled)
             {
                 this.BackupTimerReference.Dispose();
@@ -471,5 +534,8 @@ namespace DataServer
             }
         }
 
+        /**
+         *   --------------   Replication    ----------------
+         */
     }
 }

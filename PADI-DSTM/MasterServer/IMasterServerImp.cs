@@ -219,7 +219,6 @@ namespace MasterServer
                 replicaProcess.StartInfo.UseShellExecute = true;
                 replicaProcess.StartInfo.FileName = ServerPath;
                 replicaProcess.StartInfo.CreateNoWindow = false;
-                // The parameters are passed as : PORT, ID 
                 string arguments = port.ToString() + " " + primaryID.ToString();
                 replicaProcess.StartInfo.Arguments = arguments;
                 replicaProcess.Start();
@@ -304,7 +303,7 @@ namespace MasterServer
 
         public void HaveCommitted(TID tid, int participant)
         {
-
+    
         }
 
         public bool GetDecision(TID tid)

@@ -14,12 +14,15 @@ namespace CommonTypes
     public interface IDataServer
     {
         /**
-         *  IDataServer - CreateObject.
-         *  @param uid - int object uid.
-         */
+          *  IDataServer - CreateObject.
+          * Method that allows a user to create a new PadInt
+          * object in the DataServer.
+          *  @param uid - int object uid.
+          */
         void CreateObject(int uid);
         /**
          *  IDataServer - AccessObject.
+         *  Method that return an reference to the PadIntServer object with identifier uid.
          *  @param uid - int object uid.
          *  @return PadIntServer reference.
          */
@@ -188,11 +191,21 @@ namespace CommonTypes
          *  @param tid - TID.
          *  @return bool.
          */
-
         bool GetDecision(TID tid);
-
+        /**
+         *  IMasterServer - AddWriteToTrans
+         *  A new write operation is registed in the transaction.
+         *  @param uid - int - Transaction identifier.
+         *  @param value - int - The PadInt value that has been written.
+         *  @param tid - TID - Transaction identifier.
+         */
         void AddWriteToTrans(int uid, int value, TID tid);
-
+        /**
+         *  IMasterServer - AddReadToTrans
+         *  A new read operation is registed in the transaction.
+         *  @param uid - int - Transaction identifier.
+         *  @param tid - TID - Transaction identifier.
+         */
         void AddReadToTrans(int uid, TID tid);
     }
 
@@ -210,16 +223,18 @@ namespace CommonTypes
 
         /*
          * TranscationPadInt constructor
-         * @param UID - int.
-         * @param wasWrite - bool.
-         * @param value - int.
+         * @param UID - int - PadInt identifier.
+         * @param value - int - PadInt Value.
          */
         public TranscationPadInt(int UID, int value)
         {
             _UID = UID;
             _value = value;
         }
-
+        /*
+         * TranscationPadInt constructor
+         * @param UID - int - PadInt identifier.
+         */
         public TranscationPadInt(int UID)
         {
             _UID = UID;
