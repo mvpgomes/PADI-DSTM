@@ -268,11 +268,10 @@ namespace MasterServer
             return tid;
         }
 
-        public bool CloseTransaction(TID tid)
+        private bool UpdatePhase(TID tid)
         {
-            bool result = false;
-
-            //get lock
+            bool committed = false;
+            
             if (this.transactionManager.IsValidTransaction(tid))
             {
                 foreach (KeyValuePair<int, TranscationPadInt> entry in this.transactionManager.GetTransaction(tid).WriteValues())
@@ -281,7 +280,33 @@ namespace MasterServer
                     dataServer.DoCommit(entry.Value);
                 }
                 this.transactionManager.SetLastCommit(tid);
-                result = true;
+                committed = true;
+            }
+
+            return committed;
+        }
+
+        private bool ValidationPhase(TID tid)
+        {
+            bool isValid = true;
+
+            foreach (int participant in this.transactionManager.GetTransaction(tid).GetParticipants())
+            {
+                //get participant and ask for vote
+                //if one request is false return false
+            }
+
+            return isValid;
+        }
+
+        public bool CloseTransaction(TID tid)
+        {
+            bool result = false;
+
+            //get lock
+            if (ValidationPhase(tid))
+            {
+                result = UpdatePhase(tid);
             }
             //release lock
 

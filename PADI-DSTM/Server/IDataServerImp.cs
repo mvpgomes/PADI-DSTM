@@ -285,14 +285,14 @@ namespace DataServer
          * Transactions  
          **/
 
-        public bool CanCommit(Transaction trans)
+        public bool CanCommit(TID tid)
         {
-            bool valid = true;
-
-            //for(int Ti = startTn+1; Ti <= finishTn; Ti++)
-            // if(read set of Tv intersects write set of Ti) valid = false
-
-            return valid;
+            //record the tid and the result of this method
+            if(this.DataServerState == (int)State.Failed ||
+                this.DataServerState == (int)State.Freezed) {
+                return false;
+            } 
+            return true;
         }
 
         public void DoCommit(TranscationPadInt transPadInt)
@@ -301,9 +301,9 @@ namespace DataServer
             this.padIntDB[transPadInt._UID].SetValue(transPadInt._value);
         }
 
-        public void DoAbort(Transaction trans)
+        public void DoAbort(TID tid)
         {
-            throw new NotImplementedException();
+            //log tid aborted
         }
 
         /**

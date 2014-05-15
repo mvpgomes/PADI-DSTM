@@ -49,10 +49,10 @@ namespace CommonTypes
          *  Data Servers will implement participant's transaction interface
          *  Call from coordinator to participant to ask whether it can commit a transaction
          *  Participant replies with its vote.
-         *  @param trans - Transaction.
+         *  @param tid - Transaction.
          *  @return bool - confirmation.
          */
-        bool CanCommit(Transaction trans);
+        bool CanCommit(TID tid);
 
         /**
          *  IDataServer - DoAbort
@@ -66,7 +66,7 @@ namespace CommonTypes
          *  Call from coordinator to participant to tell participant to abort its part of a transaction.
          *  @param trans
          */
-        void DoAbort(Transaction trans);
+        void DoAbort(TID tid);
 
         /**
          *  IDataServer - updatePrimaryState
