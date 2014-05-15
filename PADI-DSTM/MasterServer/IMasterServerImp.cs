@@ -8,6 +8,7 @@ using CommonTypes;
 using DataServer;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace MasterServer
 {
@@ -35,6 +36,8 @@ namespace MasterServer
 
         private int dataServerId;
         private static IMasterServerImp instance;
+
+        object waiting = new object();
 
         private Dictionary<int, string> primaryServerAddress;
         private Dictionary<int, string> backupServerAddress;
@@ -271,9 +274,25 @@ namespace MasterServer
 
         public TID OpenTransaction()
         {
-            //get lock
-            TID tid = TidGenerator.GenerateTID();
-            //release lock
+            TID tid = null;
+
+            try
+            {
+                Monitor.Enter(this.waiting);
+                try
+                {
+                    tid = TidGenerator.GenerateTID();
+                }
+                finally
+                {
+                    Monitor.Exit(this.waiting);
+                }
+            }
+            catch (SynchronizationLockException SyncEx) 
+            {
+                Console.WriteLine("A SynchronizationLockException occurred. Message:");
+                Console.WriteLine(SyncEx.Message);
+            }
 
             Transaction trans = new Transaction(tid, transactionManager.GetLastCommit());
             transactionManager.AddTransaction(trans);
@@ -316,12 +335,25 @@ namespace MasterServer
         {
             bool result = false;
 
-            //get lock
-            if (ValidationPhase(tid))
+            
+            try
             {
-                result = UpdatePhase(tid);
+                //get lock
+                Monitor.Enter(this.waiting);
+
+                if (ValidationPhase(tid))
+                {
+                    result = UpdatePhase(tid);
+                }
+
+                //release lock
+                Monitor.Exit(this.waiting);
+            } 
+            catch (SynchronizationLockException SyncEx)
+            {
+                Console.WriteLine("A SynchronizationLockException occurred. Message:");
+                Console.WriteLine(SyncEx.Message);
             }
-            //release lock
 
             return result;
         }

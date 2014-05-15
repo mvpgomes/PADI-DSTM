@@ -39,10 +39,17 @@ namespace CommonTypes
          */
         public static bool Init()
         {
-            channel = new TcpChannel();
-            ChannelServices.RegisterChannel(channel, false);
-            currentTx = null;
-            return true;
+            try
+            {
+                channel = new TcpChannel();
+                ChannelServices.RegisterChannel(channel, false);
+                currentTx = null;
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         // Transactions
@@ -93,26 +100,21 @@ namespace CommonTypes
       */
         public static bool TxCommit()
         {
+            bool res = false;
+
             remoteMaster = getMasterInstance();
             if (currentTx != null)
             {
                 sendDirtyPadints();
-
                 if (remoteMaster.CloseTransaction(currentTx))
                 {
                     accessedPadInts.Clear();
                     currentTx = null;
-                    return true;
-                }
-                else
-                {
-                    throw new TxException("Transaction Aborted.");
+                    res = true;
                 }
             }
-            else
-            {
-                throw new TxException("The transaction does not exist.");
-            }
+
+            return res;
         }
 
         /*
@@ -237,6 +239,12 @@ namespace CommonTypes
                 {
                     IMasterServer remoteMaster = getMasterInstance();
                     string dataServerAddress = remoteMaster.GetPadIntLocation(uid);
+
+                    if (dataServerAddress == null)
+                    {
+                        return null;
+                    }
+
                     IDataServer remoteServer = getDataServerInstance(dataServerAddress);
                     padIntServer = remoteServer.AccessObject(uid);
                     //Do the conversion
