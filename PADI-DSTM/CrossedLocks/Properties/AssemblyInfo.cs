@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TransactionSystem")]
+[assembly: AssemblyTitle("CrossedLocks")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TransactionSystem")]
+[assembly: AssemblyProduct("CrossedLocks")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("084a5333-4694-4a22-97aa-d7555c04cfb9")]
+[assembly: Guid("d11b21de-119e-45df-b64d-79c1748727e0")]
 
 // Version information for an assembly consists of the following four values:
 //
