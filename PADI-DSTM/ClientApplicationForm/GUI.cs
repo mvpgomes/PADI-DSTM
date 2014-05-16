@@ -228,7 +228,12 @@ namespace ClientApplicationForm
 
                     if (res) { 
                     updateLog("Transaction Committed."); 
-                    updatePadintStack(""); 
+                    updatePadintStack("");
+                    }
+                    else
+                    {
+                        updateLog("Transaction Aborted.");
+                        updatePadintStack("");
                     }
                 }
                 catch (TxException ex) { updateLog(ex.Message); }

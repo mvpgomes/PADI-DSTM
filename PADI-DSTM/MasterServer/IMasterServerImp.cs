@@ -320,26 +320,18 @@ namespace MasterServer
 
         private bool ValidationPhase(TID tid)
         {
-            bool isValid = false;
+            bool isValid = true;
 
             foreach (int uid in this.transactionManager.GetTransaction(tid).GetOperatedUID())
             {
                 //get participant and ask for vote
                 //if one request is false return false
-                try
+                IDataServer data = GetDataServerInstance(GetPadIntLocation(uid));
+                if (!data.CanCommit(tid))
                 {
-                    IDataServer data = GetDataServerInstance(GetPadIntLocation(uid));
-                    if (!data.CanCommit(tid))
-                    {
-                        return isValid;
-                    }
-                }
-                catch (Exception)
-                {
-                    return isValid;
+                    isValid = false;
                 }
             }
-            isValid = true;
 
             return isValid;
         }

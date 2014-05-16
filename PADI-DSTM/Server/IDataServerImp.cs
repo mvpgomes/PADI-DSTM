@@ -268,6 +268,7 @@ namespace DataServer
                 {
                     this.DataServerState = (int)State.Freezed;
                     Monitor.Enter(this.waiting);
+                    Console.WriteLine("State: " + this.DataServerState);
                     return true;
                 }
                 else { return false; }
