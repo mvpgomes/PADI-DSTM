@@ -101,6 +101,8 @@ namespace DataServer
          * IDataServerImp - NotifyMasterServer.
          * Method that notify the MasterServer when a PadInt object is created
          * sucessfully.
+         * @param url - string
+         * @param uid - int 
          */
         public void NotifyMasterServer(string url, int uid)
         {
@@ -333,6 +335,10 @@ namespace DataServer
             remoteReplica.UpdatePadInt(transPadInt._UID, transPadInt._value);
         }
 
+        /**
+         *  IDataServer - DoAbort.
+         * @param tid - TID.
+         */
         public void DoAbort(TID tid)
         {
             //log tid aborted
@@ -382,9 +388,12 @@ namespace DataServer
             return remoteInstance;
         }
 
-       /**
-        * Update the PadInt after a write operation is performed
-        **/
+        /**
+          *  IDataServer - UpdatePadInt.
+          *  Update the PadInt after a write operation is performed
+          * @param id - int - PadInt id.
+          * @param value - int - PadInt Value.
+          */
         public void UpdatePadInt(int id, int value)
         {
             if (this.padIntDB.ContainsKey(id)) { 
@@ -400,9 +409,15 @@ namespace DataServer
         }
   
         /**
-         * Method that is called by the primary server to assign
-         * a new replica server.
-         **/ 
+
+         **/
+        /**
+           *  IDataServer - createReplicaServer.
+           * Method that is called by the primary server to assign
+           * a new replica server.
+           * @param serverID - int.
+           * @param port - string.
+           */
         public void createReplicaServer(int serverID, string port)
         {
             try
