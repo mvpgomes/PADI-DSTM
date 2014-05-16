@@ -16,6 +16,7 @@ namespace ClientApplicationForm
     {
         private Dictionary<int, PadInt> cachedObjects;
         private bool isOnTrans;
+
         public GUI()
         {
             InitializeComponent();
@@ -24,8 +25,16 @@ namespace ClientApplicationForm
         }
 
         private void Form1_Load(object sender, EventArgs e)
-        {
+        { }
 
+        private void updateLog(string message)
+        {
+            Log.Text += message + "\r\n";
+        }
+
+        private void updatePadintStack(string message)
+        {
+            padintStack.Text += message + "\r\n";
         }
 
         private void CreatePadInt_Click(object sender, EventArgs e)
@@ -34,13 +43,15 @@ namespace ClientApplicationForm
 
             if (!this.isOnTrans)
             {
-                updateLog("Please begin a transaction.");
+                updateLog("Please begin a transaction first.");
+                updatePadintStack("");
                 return;
             }
 
             if (PadIntID.Length == 0)
             {
                 updateLog("Please insert a valid ID.");
+                updatePadintStack("");
                 return;
             }
 
@@ -49,6 +60,7 @@ namespace ClientApplicationForm
             if (res == null)
             {
                 updateLog("The PadInt with id " + PadIntID + " already exists.");
+                updatePadintStack("");
             }
             else
             {
@@ -59,16 +71,17 @@ namespace ClientApplicationForm
 
         private void AccessPadInt_Click(object sender, EventArgs e)
         {
-       
             if (!this.isOnTrans)
             {
-                updateLog("Please begin a transaction.");
+                updateLog("Please begin a transaction first.");
+                updatePadintStack("");
                 return;
             }
             string PadIntID = uidTxt.Text;
             if (PadIntID.Length == 0)
             {
                 updateLog("Please insert a valid ID.");
+                updatePadintStack("");
                 return;
             }
             PadInt res = null;
@@ -87,6 +100,7 @@ namespace ClientApplicationForm
             if (res == null)
             {
                 updateLog("The PadInt with id " + PadIntID + " does not exist.");
+                updatePadintStack("");
             }
 
             updatePadintStack(res.ToString());
@@ -99,6 +113,7 @@ namespace ClientApplicationForm
             if (URL.Length == 0)
             {
                 updateLog("Please insert a valid URL.");
+                updatePadintStack("");
                 return;
             }
 
@@ -112,6 +127,7 @@ namespace ClientApplicationForm
             if (URL.Length == 0)
             {
                 updateLog("Please insert a valid URL.");
+                updatePadintStack("");
                 return;
             }
 
@@ -120,7 +136,8 @@ namespace ClientApplicationForm
 
             if (res == false)
             {
-                updateLog("The reuqest could not be completed.");
+                updateLog("The request could not be completed.");
+                updatePadintStack("");
             }
         }
 
@@ -131,6 +148,7 @@ namespace ClientApplicationForm
             if (URL.Length == 0)
             {
                 updateLog("Please insert a valid URL.");
+                updatePadintStack("");
                 return;
             }
 
@@ -138,7 +156,8 @@ namespace ClientApplicationForm
 
             if (res == false)
             {
-                updateLog("The reuqest could not be completed.");
+                updateLog("The request could not be completed.");
+                updatePadintStack("");
             }
         }
 
@@ -148,7 +167,8 @@ namespace ClientApplicationForm
 
             if (res == false)
             {
-                updateLog("The reuqest could not be completed.");
+                updateLog("The request could not be completed.");
+                updatePadintStack("");
             }
         }
 
@@ -162,15 +182,18 @@ namespace ClientApplicationForm
                     this.isOnTrans = false;
                     this.cachedObjects.Clear();
                     updateLog("Transaction Aborted.");
+                    updatePadintStack("");
                 }
                 else
                 {
                     updateLog("Transaction Abort failed.");
+                    updatePadintStack("");
                 }
             }
             else
             {
-                updateLog("Please Begin a transaction.");
+                updateLog("Please Begin a transaction first.");
+                updatePadintStack("");
             }
         }
 
@@ -181,31 +204,30 @@ namespace ClientApplicationForm
                 PadiDstm.TxBegin();
                 this.isOnTrans = true;
                 updateLog("Transaction Started.");
+                updatePadintStack("");
             }
             catch (TxException ex) { updateLog(ex.Message); }
         }
 
         private void TxCommit_Click(object sender, EventArgs e)
         {
-            try
+            if (this.isOnTrans)
             {
-                bool res = PadiDstm.TxCommit();
-                this.isOnTrans = false;
-                this.cachedObjects.Clear();
+                try
+                {
+                    bool res = PadiDstm.TxCommit();
+                    this.isOnTrans = false;
+                    this.cachedObjects.Clear();
 
-                if (res) { updateLog("Transaction Committed."); }
+                    if (res) { updateLog("Transaction Committed."); updatePadintStack(""); }
+                }
+                catch (TxException ex) { updateLog(ex.Message); }
             }
-            catch (TxException ex) { updateLog(ex.Message); }  
-       }
-
-        private void updateLog(string message)
-        {
-            Log.Text += message + "\r\n";
-        }
-
-        private void updatePadintStack(string message)
-        {
-            padintStack.Text += message + "\r\n";
+            else
+            {
+                updateLog("Please Begin a transaction first.");
+                updatePadintStack("");
+            }
         }
 
         private void InitButton_Click(object sender, EventArgs e)
@@ -218,12 +240,19 @@ namespace ClientApplicationForm
 
         private void WritePadInt(object sender, EventArgs e)
         {
+            if (!this.isOnTrans)
+            {
+                updateLog("Please begin a transaction first.");
+                updatePadintStack("");
+                return;
+            }
             if (uidTxt.Text.Length == 0 || valueTxt.Text.Length == 0)
             {
                 updateLog("Please insert valid values.");
+                updatePadintStack("");
                 return;
             }
-            
+
             int uid = Convert.ToInt32(uidTxt.Text);
             int value = Convert.ToInt32(valueTxt.Text);
 
@@ -233,14 +262,24 @@ namespace ClientApplicationForm
                 obj.Write(value);
                 updatePadintStack(obj.ToString());
             }
-            catch (Exception) { updateLog("The PadInt with id " + uid + " does not exist."); }
+            catch (Exception) {
+            updateLog("The PadInt with id " + uid + " does not exist.");
+            updatePadintStack("");
+            }
         }
 
         private void ReadPadInt(object sender, EventArgs e)
         {
+            if (!this.isOnTrans)
+            {
+                updateLog("Please begin a transaction first.");
+                updatePadintStack("");
+                return;
+            }
             if (uidTxt.Text.Length == 0)
             {
                 updateLog("Please insert valid ID.");
+                updatePadintStack("");
                 return;
             }
 
@@ -251,7 +290,10 @@ namespace ClientApplicationForm
                 PadInt obj = cachedObjects[uid];
                 updatePadintStack(obj.Read().ToString());
             }
-            catch (Exception) { updateLog("The PadInt with id " + uid + " does not exist."); }                
+            catch (Exception) { 
+            updateLog("The PadInt with id " + uid + " does not exist.");
+            updatePadintStack("");
+            }
         }
     }
 }
