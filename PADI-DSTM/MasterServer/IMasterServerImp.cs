@@ -335,7 +335,6 @@ namespace MasterServer
         {
             bool result = false;
 
-            
             try
             {
                 //get lock
@@ -360,7 +359,9 @@ namespace MasterServer
 
         public void AbortTransaction(TID tid)
         {
-
+            //get the transaction and remove
+            Transaction trans = this.transactionManager.GetTransaction(tid);
+            this.transactionManager.RemoveTransaction(trans);
         }
 
         public void Join(TID tid, int participant)

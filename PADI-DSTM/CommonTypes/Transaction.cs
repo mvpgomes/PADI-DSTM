@@ -11,7 +11,7 @@ namespace CommonTypes
     /// TID must be unique.
     /// </summary>
     [Serializable()]
-    public class Transaction
+    public class Transaction : IEquatable<Transaction>
     {
         /*
          * Transaction variables.
@@ -97,6 +97,15 @@ namespace CommonTypes
         public List<int> GetWriteSet()
         {
             return new List<int>(this.writeSet.Keys);
+        }
+
+        public bool Equals(Transaction other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            return this.tid.Equals(other.GetTID());
         }
     }
 }

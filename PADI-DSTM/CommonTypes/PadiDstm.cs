@@ -87,6 +87,9 @@ namespace CommonTypes
         {
             accessedPadInts.Clear();
             //Abort to Master
+
+            getMasterInstance().AbortTransaction(currentTx);
+
             return true;
         }
 
