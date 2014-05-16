@@ -17,8 +17,7 @@ namespace CommonTypes
          * Transaction variables.
          */
         private TID tid;
-        private List<int> partcipants;
-
+  
         private Dictionary<int, TranscationPadInt> writeSet;
         private Dictionary<int, TranscationPadInt> readSet;
 
@@ -31,8 +30,7 @@ namespace CommonTypes
         public Transaction(TID tid, int startTn)
         {
             this.tid = tid;
-            this.partcipants = new List<int>();
-
+  
             this.writeSet = new Dictionary<int, TranscationPadInt>();
             this.readSet = new Dictionary<int, TranscationPadInt>();
 
@@ -42,6 +40,15 @@ namespace CommonTypes
         public int GetSartTn() 
         {
             return startTn;
+        }
+
+        public List<int> GetOperatedUID()
+        {
+            List<int> writes = new List<int>(writeSet.Keys);
+            List<int> reads = new List<int>(readSet.Keys);
+            writes.AddRange(reads);
+
+            return writes;
         }
 
         public Dictionary<int, TranscationPadInt> WriteValues() 
@@ -54,19 +61,6 @@ namespace CommonTypes
          * @return TID - from this transaction.
          */
         public TID GetTID() { return this.tid; }
-        /**
-         * Transaction - AddParticipant
-         * @param participant - int participant identifier.
-         */
-        public void AddParticipant(int participant)
-        {
-            this.partcipants.Add(participant);
-        }
-        /**
-         * Transaction - GetParticipants
-         * @return List<int> - List of participants.
-         */
-        public List<int> GetParticipants() { return this.partcipants; }
 
         /**
          * Transaction - ToString

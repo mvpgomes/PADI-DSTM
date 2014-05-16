@@ -141,6 +141,11 @@ namespace ClientApplicationForm
                 updateLog("The request could not be completed.");
                 updatePadintStack("");
             }
+            else
+            {
+                updateLog(URL);
+                updatePadintStack("freezed");
+            }
         }
 
         private void Recover_Click(object sender, EventArgs e)

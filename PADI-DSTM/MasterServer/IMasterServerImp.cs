@@ -320,13 +320,26 @@ namespace MasterServer
 
         private bool ValidationPhase(TID tid)
         {
-            bool isValid = true;
+            bool isValid = false;
 
-            foreach (int participant in this.transactionManager.GetTransaction(tid).GetParticipants())
+            foreach (int uid in this.transactionManager.GetTransaction(tid).GetOperatedUID())
             {
                 //get participant and ask for vote
                 //if one request is false return false
+                try
+                {
+                    IDataServer data = GetDataServerInstance(GetPadIntLocation(uid));
+                    if (!data.CanCommit(tid))
+                    {
+                        return isValid;
+                    }
+                }
+                catch (Exception)
+                {
+                    return isValid;
+                }
             }
+            isValid = true;
 
             return isValid;
         }
@@ -366,11 +379,7 @@ namespace MasterServer
 
         public void Join(TID tid, int participant)
         {
-            Transaction trans = this.transactionManager.GetTransaction(tid);
-            if (trans != null)
-            {
-                trans.AddParticipant(participant);
-            }
+            //Automatically done when a client request a padint
         }
 
         public void HaveCommitted(TID tid, int participant)
