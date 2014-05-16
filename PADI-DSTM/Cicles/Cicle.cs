@@ -9,7 +9,7 @@ class Cicle {
     static void Main(string[] args) {
         bool res;
 
-        args = new string[] { "C" }; 
+     //   args = new string[] { "C" }; 
 
         PadiDstm.Init();
 
