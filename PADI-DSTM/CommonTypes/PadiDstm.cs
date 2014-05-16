@@ -85,12 +85,20 @@ namespace CommonTypes
          */
         public static bool TxAbort()
         {
-            accessedPadInts.Clear();
-            //Abort to Master
+            bool res = false;
 
-            getMasterInstance().AbortTransaction(currentTx);
+            if (currentTx != null)
+            {
+                remoteMaster = getMasterInstance();
+                if (remoteMaster.CloseTransaction(currentTx))
+                {
+                    currentTx = null;
+                    accessedPadInts.Clear();
+                    res = true;
+                }
+            }
 
-            return true;
+            return res;
         }
 
         /*
@@ -116,7 +124,6 @@ namespace CommonTypes
                     res = true;
                 }
             }
-
             return res;
         }
 
@@ -290,7 +297,5 @@ namespace CommonTypes
 
             return remoteServer;
         }
-
-
     }
 }

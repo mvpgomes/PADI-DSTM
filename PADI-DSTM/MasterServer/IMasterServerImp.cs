@@ -344,7 +344,6 @@ namespace MasterServer
                 {
                     result = UpdatePhase(tid);
                 }
-
                 //release lock
                 Monitor.Exit(this.waiting);
             } 
@@ -356,6 +355,7 @@ namespace MasterServer
 
             return result;
         }
+
 
         public void AbortTransaction(TID tid)
         {
