@@ -64,6 +64,7 @@ namespace ClientApplicationForm
             }
             else
             {
+                updateLog("PadInt created.");
                 updatePadintStack(res.ToString());
                 cachedObjects.Add(res.getUID(), res);
             }
@@ -103,6 +104,7 @@ namespace ClientApplicationForm
                 updatePadintStack("");
             }
 
+            updateLog("PadInt Accessed.");
             updatePadintStack(res.ToString());
         }
 
@@ -219,7 +221,10 @@ namespace ClientApplicationForm
                     this.isOnTrans = false;
                     this.cachedObjects.Clear();
 
-                    if (res) { updateLog("Transaction Committed."); updatePadintStack(""); }
+                    if (res) { 
+                    updateLog("Transaction Committed."); 
+                    updatePadintStack(""); 
+                    }
                 }
                 catch (TxException ex) { updateLog(ex.Message); }
             }
@@ -260,6 +265,7 @@ namespace ClientApplicationForm
             {
                 PadInt obj = cachedObjects[uid];
                 obj.Write(value);
+                updateLog("Write operation.");
                 updatePadintStack(obj.ToString());
             }
             catch (Exception) {
@@ -288,6 +294,7 @@ namespace ClientApplicationForm
             try
             {
                 PadInt obj = cachedObjects[uid];
+                updateLog("Read operation.");
                 updatePadintStack(obj.Read().ToString());
             }
             catch (Exception) { 

@@ -334,8 +334,7 @@ namespace MasterServer
         public bool CloseTransaction(TID tid)
         {
             bool result = false;
-
-            
+  
             try
             {
                 //get lock
@@ -345,7 +344,6 @@ namespace MasterServer
                 {
                     result = UpdatePhase(tid);
                 }
-
                 //release lock
                 Monitor.Exit(this.waiting);
             } 
@@ -358,10 +356,11 @@ namespace MasterServer
             return result;
         }
 
+        /*
         public void AbortTransaction(TID tid)
         {
 
-        }
+        } */
 
         public void Join(TID tid, int participant)
         {
