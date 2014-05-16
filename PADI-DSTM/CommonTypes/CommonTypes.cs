@@ -168,7 +168,7 @@ namespace CommonTypes
          *  Aborts the transaction.
          *  @param tid - TID object.
          */
-        //void AbortTransaction(TID tid);
+        void AbortTransaction(TID tid);
         /**
          *  IMasterServer - Join
          *  Informs a coordinator that a new participant has joined the transaction trans.

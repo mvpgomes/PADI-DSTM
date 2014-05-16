@@ -97,10 +97,7 @@ namespace CommonTypes
                     res = true;
                 }
             }
-            else
-            {
-                throw new TxException("Please begin a transaction first.");
-            }
+
             return res;
         }
 
